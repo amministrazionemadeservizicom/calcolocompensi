@@ -193,6 +193,165 @@ export const DATA = [
     { fornitore: "Diretto", cat: "ENERGIA", provider: "Magis Dir.", segment: "BIZ", product: "Altri Usi Tipo M", tipo: "Luce", gettone: 120, rid: 15, bolweb: 0, consenso: 5, massimo: 140, note: "SDD 15€, Paperless 5€, Ric.EE €0,0030/kWh" },
     { fornitore: "Diretto", cat: "ENERGIA", provider: "Magis Dir.", segment: "BIZ", product: "Altri Usi Tipo B", tipo: "Luce", gettone: 90, rid: 15, bolweb: 0, consenso: 5, massimo: 110, note: "SDD 15€, Paperless 5€, Ric.EE €0,0020/kWh" },
     { fornitore: "Diretto", cat: "ENERGIA", provider: "Magis Dir.", segment: "BIZ", product: "Altri Usi Tipo L", tipo: "Luce", gettone: 50, rid: 15, bolweb: 0, consenso: 5, massimo: 70, note: "SDD 15€, Paperless 5€, Ric.EE €0,0015/kWh" },
+    {
+        fornitore: "Diretto",
+        cat: "ENERGIA",
+        provider: "Alperia",
+        segment: "RES",
+        product: "Home Digital / Start / Smile Safety",
+        tipo: "Luce/Gas",
+        gettone: 30,
+        rid: 0,
+        bolweb: 0,
+        consenso: 0,
+        massimo: 30,
+        note: "From Alperia PDF"
+    },
+    {
+        fornitore: "Diretto",
+        cat: "ENERGIA",
+        provider: "Alperia",
+        segment: "RES",
+        product: "Home Standard / Pure",
+        tipo: "Luce/Gas",
+        gettone: 50,
+        rid: 0,
+        bolweb: 0,
+        consenso: 0,
+        massimo: 50,
+        note: "From Alperia PDF"
+    },
+    {
+        fornitore: "Diretto",
+        cat: "ENERGIA",
+        provider: "Alperia",
+        segment: "RES",
+        product: "Home Pro / Clear / Prime",
+        tipo: "Luce/Gas",
+        gettone: 70,
+        rid: 0,
+        bolweb: 0,
+        consenso: 0,
+        massimo: 70,
+        note: "From Alperia PDF"
+    },
+    {
+        fornitore: "Diretto",
+        cat: "ENERGIA",
+        provider: "Alperia",
+        segment: "RES",
+        product: "Home Premium",
+        tipo: "Luce/Gas",
+        gettone: 100,
+        rid: 0,
+        bolweb: 0,
+        consenso: 0,
+        massimo: 100,
+        note: "From Alperia PDF"
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 2GEST — PIANO COMPENSI APRILE 2026
+    // ═══════════════════════════════════════════════════════════════
+
+    // ─────────────── VODAFONE (BIZ) ───────────────
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "One Net Ufficio/Azienda", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "6 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "Fissa Smart/Comfort/Extra", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "7 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "Extra Servizi Fissa", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "4 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "Easy Rent", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "5 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "Easy Deal", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "2 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "SIM", tipo: "Mobile", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "4 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "Bundle SDM + MOVYLO", tipo: "Digital", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "5 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "Digital Tutto", tipo: "Digital", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "4 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Vodafone", segment: "BIZ", product: "PA", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "2 canoni T0" },
+
+    // ─────────────── FASTWEB (2G) — TELECOM RES ───────────────
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "RES", product: "Casa Ultra", tipo: "Fisso", gettone: 110, rid: 0, bolweb: 0, consenso: 0, massimo: 110 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "RES", product: "Casa Pro", tipo: "Fisso", gettone: 100, rid: 0, bolweb: 0, consenso: 0, massimo: 100 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "RES", product: "Casa Start", tipo: "Fisso", gettone: 80, rid: 0, bolweb: 0, consenso: 0, massimo: 80 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "RES", product: "Casa FWA", tipo: "Fisso", gettone: 75, rid: 0, bolweb: 0, consenso: 0, massimo: 75 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "RES", product: "Casa FWA Start", tipo: "Fisso", gettone: 80, rid: 0, bolweb: 0, consenso: 0, massimo: 80 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "RES", product: "Mobile Start", tipo: "Mobile", gettone: 5, rid: 0, bolweb: 0, consenso: 0, massimo: 5 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "RES", product: "Mobile Pro", tipo: "Mobile", gettone: 10, rid: 0, bolweb: 0, consenso: 0, massimo: 10 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "RES", product: "Mobile Ultra", tipo: "Mobile", gettone: 15, rid: 0, bolweb: 0, consenso: 0, massimo: 15 },
+
+    // ─────────────── FASTWEB (2G) — TELECOM BIZ ───────────────
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "BIZ", product: "Business Light", tipo: "Fisso", gettone: 130, rid: 0, bolweb: 0, consenso: 0, massimo: 130 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "BIZ", product: "Business", tipo: "Fisso", gettone: 200, rid: 0, bolweb: 0, consenso: 0, massimo: 200 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "BIZ", product: "Business Plus", tipo: "Fisso", gettone: 260, rid: 0, bolweb: 0, consenso: 0, massimo: 260 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "BIZ", product: "Business Pro", tipo: "Fisso", gettone: 300, rid: 0, bolweb: 0, consenso: 0, massimo: 300 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "BIZ", product: "NeXXt Mobile Business", tipo: "Mobile", gettone: 15, rid: 0, bolweb: 0, consenso: 0, massimo: 15 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "BIZ", product: "NeXXt Mobile Business Freedom", tipo: "Mobile", gettone: 30, rid: 0, bolweb: 0, consenso: 0, massimo: 30 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Fastweb (2G)", segment: "BIZ", product: "NeXXt Mobile Business Unlimited", tipo: "Mobile", gettone: 35, rid: 0, bolweb: 0, consenso: 0, massimo: 35 },
+
+    // ─────────────── FASTWEB (2G) — ENERGIA RES ───────────────
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Fastweb (2G)", segment: "RES", product: "Fastweb FLEX", tipo: "Luce", gettone: 85, rid: 0, bolweb: 0, consenso: 0, massimo: 85, note: "Switch/Voltura/Subentro; SSD obbligatorio" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Fastweb (2G)", segment: "RES", product: "Fastweb FIX", tipo: "Luce", gettone: 85, rid: 0, bolweb: 0, consenso: 0, massimo: 85, note: "Solo Switch; SSD obbligatorio" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Fastweb (2G)", segment: "RES", product: "Fastweb LIGHT/FULL/MAXI", tipo: "Luce", gettone: 85, rid: 0, bolweb: 0, consenso: 0, massimo: 85, note: "Solo Switch; SSD obbligatorio" },
+
+    // ─────────────── WIND3 (2G) — BIZ ───────────────
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Wind3 (2G)", segment: "BIZ", product: "OFFICE PLUS SPECIAL 1 Canale Voce", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "2,5 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Wind3 (2G)", segment: "BIZ", product: "OFFICE PLUS 2 Canali Voce", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "4 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Wind3 (2G)", segment: "BIZ", product: "OFFICE MAXI 3-8 Canali Voce", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "5 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Wind3 (2G)", segment: "BIZ", product: "SIM", tipo: "Mobile", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "4 canoni T0 + 1 canone T8" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Wind3 (2G)", segment: "BIZ", product: "CONNECT FTTC/FTTH", tipo: "Dati", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "4 canoni T0 (solo servizio)" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Wind3 (2G)", segment: "BIZ", product: "CONNECT BEA/Ponte Radio/FWA", tipo: "Dati", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "3 canoni T0 (solo servizio)" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Wind3 (2G)", segment: "BIZ", product: "CONNECT Terminating Ethernet", tipo: "Dati", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "3 canoni T0 (solo servizio)" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "Wind3 (2G)", segment: "BIZ", product: "CONNECT Radiolink EOLO", tipo: "Dati", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "4 canoni T0 (solo servizio)" },
+
+    // ─────────────── TIM (2G) — RES ───────────────
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "Tutte le offerte — ULL", tipo: "Fisso", gettone: 140, rid: 0, bolweb: 0, consenso: 0, massimo: 140, note: "SSD obbl. (assenza → 50%)" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "Tutte le offerte — NIP", tipo: "Fisso", gettone: 110, rid: 0, bolweb: 0, consenso: 0, massimo: 110, note: "SSD obbl. (assenza → 50%)" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "Opzione VOCE", tipo: "Opzione", gettone: 5, rid: 0, bolweb: 0, consenso: 0, massimo: 5, note: "Solo se opzione a pagamento" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "Opzione MOBILE", tipo: "Opzione", gettone: 5, rid: 0, bolweb: 0, consenso: 0, massimo: 5, note: "Solo se opzione a pagamento" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "TIMVISION Gold", tipo: "Opzione", gettone: 25, rid: 0, bolweb: 0, consenso: 0, massimo: 25 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "TIMVISION Calcio e Sport", tipo: "Opzione", gettone: 20, rid: 0, bolweb: 0, consenso: 0, massimo: 20 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "TIMVISION con Netflix", tipo: "Opzione", gettone: 10, rid: 0, bolweb: 0, consenso: 0, massimo: 10 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "TIMVISION Family", tipo: "Opzione", gettone: 20, rid: 0, bolweb: 0, consenso: 0, massimo: 20 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "RES", product: "TIMVISION Intrattenimento", tipo: "Opzione", gettone: 15, rid: 0, bolweb: 0, consenso: 0, massimo: 15 },
+
+    // ─────────────── TIM (2G) — BIZ ───────────────
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "BIZ", product: "SOHO — Tutte le offerte", tipo: "Fisso", gettone: 170, rid: 0, bolweb: 0, consenso: 0, massimo: 170 },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "BIZ", product: "SME — Tutte le offerte", tipo: "Fisso", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "3 canoni T0" },
+    { fornitore: "2GEST", cat: "TELECOM", provider: "TIM (2G)", segment: "BIZ", product: "Mobile BIZ — Tutte le offerte", tipo: "Mobile", gettone: 0, rid: 0, bolweb: 0, consenso: 0, massimo: 0, note: "3 canoni T0" },
+
+    // ─────────────── ENEL ENERGIA — RES ───────────────
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Enel Energia", segment: "RES", product: "Luce", tipo: "Luce", gettone: 70, rid: 10, bolweb: 0, consenso: 0, massimo: 80, note: "+10€ RID+Bol.Web" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Enel Energia", segment: "RES", product: "Gas", tipo: "Gas", gettone: 70, rid: 10, bolweb: 0, consenso: 0, massimo: 80, note: "+10€ RID+Bol.Web" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Enel Energia", segment: "RES", product: "Fibra", tipo: "Fibra", gettone: 95, rid: 0, bolweb: 0, consenso: 0, massimo: 95 },
+
+    // ─────────────── PLENITUDE — ENERGIA ───────────────
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Plenitude", segment: "RES", product: "Tutte le Offerte", tipo: "Luce/Gas", gettone: 80, rid: 0, bolweb: 0, consenso: 0, massimo: 80, note: "SSD obbl. (assenza → 50%); subentro non remunerato" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Plenitude", segment: "BIZ", product: "Tutte le Offerte", tipo: "Luce/Gas", gettone: 60, rid: 0, bolweb: 0, consenso: 0, massimo: 60, note: "SSD obbl. (assenza → 50%)" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Plenitude", segment: "RES", product: "Adotta un Pannello", tipo: "VAS", gettone: 5, rid: 0, bolweb: 0, consenso: 0, massimo: 5 },
+
+    // ─────────────── EDISON (2G) — RES ───────────────
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Edison (2G)", segment: "RES", product: "Luce Indicizzata", tipo: "Luce", gettone: 85, rid: 0, bolweb: 0, consenso: 0, massimo: 85, note: "SSD non obbl. (assenza → 50%); Churn 6m <20%" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Edison (2G)", segment: "RES", product: "Gas Indicizzato", tipo: "Gas", gettone: 85, rid: 0, bolweb: 0, consenso: 0, massimo: 85, note: "SSD non obbl. (assenza → 50%); Churn 6m <20%" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Edison (2G)", segment: "RES", product: "Luce Fissa", tipo: "Luce", gettone: 65, rid: 0, bolweb: 0, consenso: 0, massimo: 65, note: "SSD non obbl. (assenza → 50%); Churn 6m <20%" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Edison (2G)", segment: "RES", product: "Gas Fisso", tipo: "Gas", gettone: 65, rid: 0, bolweb: 0, consenso: 0, massimo: 65, note: "SSD non obbl. (assenza → 50%); Churn 6m <20%" },
+
+    // ─────────────── HERAcomm — ENERGIA ───────────────
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "HERAcomm", segment: "RES", product: "Luce", tipo: "Luce", gettone: 75, rid: 0, bolweb: 0, consenso: 0, massimo: 75, note: "SSD non obbl. (assenza → 50%); Churn 6m <20%" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "HERAcomm", segment: "RES", product: "Gas", tipo: "Gas", gettone: 75, rid: 0, bolweb: 0, consenso: 0, massimo: 75, note: "SSD non obbl. (assenza → 50%)" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "HERAcomm", segment: "BIZ", product: "Luce", tipo: "Luce", gettone: 75, rid: 0, bolweb: 0, consenso: 0, massimo: 75, note: "SSD non obbl. (assenza → 50%)" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "HERAcomm", segment: "BIZ", product: "Gas", tipo: "Gas", gettone: 75, rid: 0, bolweb: 0, consenso: 0, massimo: 75, note: "SSD non obbl. (assenza → 50%)" },
+
+    // ─────────────── ARGOS — ENERGIA ───────────────
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Argos", segment: "RES", product: "Luce", tipo: "Luce", gettone: 65, rid: 15, bolweb: 0, consenso: 0, massimo: 80, note: "+15€ RID+Bol.Web; SSD RES non obbl." },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Argos", segment: "RES", product: "Gas", tipo: "Gas", gettone: 65, rid: 15, bolweb: 0, consenso: 0, massimo: 80, note: "+15€ RID+Bol.Web; SSD RES non obbl." },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Argos", segment: "BIZ", product: "Luce", tipo: "Luce", gettone: 65, rid: 15, bolweb: 0, consenso: 0, massimo: 80, note: "+15€ RID+Bol.Web; SSD BIZ obbl." },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Argos", segment: "BIZ", product: "Gas", tipo: "Gas", gettone: 65, rid: 15, bolweb: 0, consenso: 0, massimo: 80, note: "+15€ RID+Bol.Web; SSD BIZ obbl." },
+
+    // ─────────────── LUCE E GAS ITALIA — ENERGIA ───────────────
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Luce e Gas", segment: "RES", product: "Luce", tipo: "Luce", gettone: 80, rid: 0, bolweb: 0, consenso: 0, massimo: 80, note: "SSD non obbl. (assenza → 50%); escluse CAL/BAS/CAM" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Luce e Gas", segment: "RES", product: "Gas", tipo: "Gas", gettone: 80, rid: 0, bolweb: 0, consenso: 0, massimo: 80, note: "SSD non obbl. (assenza → 50%); escluse CAL/BAS/CAM" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Luce e Gas", segment: "BIZ", product: "Luce", tipo: "Luce", gettone: 80, rid: 0, bolweb: 0, consenso: 0, massimo: 80, note: "SSD non obbl. (assenza → 50%); escluse CAL/BAS/CAM" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Luce e Gas", segment: "BIZ", product: "Gas", tipo: "Gas", gettone: 80, rid: 0, bolweb: 0, consenso: 0, massimo: 80, note: "SSD non obbl. (assenza → 50%); escluse CAL/BAS/CAM" },
+
+    // ─────────────── SENTRA — ENERGIA ───────────────
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Sentra", segment: "RES", product: "Luce", tipo: "Luce", gettone: 65, rid: 0, bolweb: 0, consenso: 0, massimo: 65, note: "SSD non obbl. (assenza → 50%)" },
+    { fornitore: "2GEST", cat: "ENERGIA", provider: "Sentra", segment: "RES", product: "Gas", tipo: "Gas", gettone: 65, rid: 0, bolweb: 0, consenso: 0, massimo: 65, note: "SSD non obbl. (assenza → 50%)" },
 ];
 
 export const PROVIDER_COLORS = {
@@ -208,6 +367,56 @@ export const PROVIDER_COLORS = {
     "Acea (SM)": "#5C6BC0", "Fastweb En. (SM)": "#FDD835",
     "Illumia (SM)": "#EF5350", "Wekiwi (SM)": "#66BB6A",
     "AGN Dir.": "#CE93D8", "Magis Dir.": "#4DB6AC",
+    // 2GEST
+    "Vodafone": "#E60000",
+    "Fastweb (2G)": "#FFD600",
+    "Wind3 (2G)": "#FF5722",
+    "TIM (2G)": "#1565C0",
+    "Enel Energia": "#006633",
+    "Plenitude": "#FF6F00",
+    "Edison (2G)": "#43A047",
+    "HERAcomm": "#B71C1C",
+    "Argos": "#7B1FA2",
+    "Luce e Gas": "#00838F",
+    "Sentra": "#5D4037",
+};
+export const GESTORE_IDS = {
+    // Promup — Energia
+    "Estra": 16,
+    "Fastweb En.": 24,
+    "Edison": 5,
+    "Edison SiB": 5,
+    "A2A": 6,
+    "Axpo": 13,
+    "AGN Energia": 66,
+    // Promup — Telecom
+    "Fastweb": 34,
+    "Fastweb BIZ": 34,
+    "TIM": 3,
+    "TIM BIZ": 3,
+    "WindTre": 32,
+    // SuperMoney — Comparatore
+    "Edison (SM)": 5,
+    "Eni (SM)": 61,
+    "Iren (SM)": 69,
+    "Acea (SM)": 58,
+    "Fastweb En. (SM)": 72,
+    "Illumia (SM)": 71,
+    // Diretto
+    "AGN Dir.": 66,
+    "Magis Dir.": 65,
+    "Alperia": 20,
+    // 2GEST — Telecom
+    "Vodafone": 31,
+    "Fastweb (2G)": 34,
+    "Wind3 (2G)": 32,
+    "TIM (2G)": 3,
+    // 2GEST — Energia
+    "Enel Energia": 1,
+    "Plenitude": 4,
+    "Edison (2G)": 5,
+    "HERAcomm": 9,
+    "Argos": 57,
 };
 
 export const STORNO_RULES = {
@@ -390,6 +599,165 @@ export const STORNO_RULES = {
             "Trattenute: Enasarco 1% + Ritenuta 4,60% = 5,60%",
         ],
         penali: [],
+    },
+
+    "Alperia": {
+        storni: [
+            "Storno 100% per i primi 3 mesi",
+            "Storno 50% per i mesi 4-6"
+        ],
+        penali: []
+    },
+
+    // ═══════════════════ 2GEST ═══════════════════
+    "Vodafone": {
+        storni: [
+            "Storno 100% Fisso BIZ entro 12 mesi dall'attivazione",
+            "Storno 100% Mobile BIZ entro 12 mesi dall'attivazione",
+            "Storno 100% Digital BIZ entro 12 mesi dall'attivazione",
+            "SSD Business: minimo 90%",
+            "Metodo contrattualizzazione: Cartaceo o OTP",
+            "Compenso ridotto di 1 canone se cliente già Vodafone",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione", importo: "200€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "500€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "1.000€" },
+        ],
+    },
+    "Fastweb (2G)": {
+        storni: [
+            "SSD Residenziale: obbligatorio",
+            "SSD Business: obbligatorio",
+            "Metodo contrattualizzazione RES: OTP",
+            "Metodo contrattualizzazione BUS: OTP",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "200€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "500€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "1.000€" },
+        ],
+    },
+    "Wind3 (2G)": {
+        storni: [
+            "Storno 100% Business entro 9 mesi dall'attivazione",
+            "SSD: obbligatorio",
+            "Metodo contrattualizzazione: OTP",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "200€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "500€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "1.000€" },
+        ],
+    },
+    "TIM (2G)": {
+        storni: [
+            "Storno 100% Fisso RES entro 6 mesi dall'attivazione",
+            "Storno 100% Fisso BUS entro 10 mesi dall'attivazione",
+            "SSD Residenziale: obbligatorio (assenza → compenso ridotto al 50%)",
+            "SSD Business: non obbligatorio",
+            "Metodo contrattualizzazione RES/BUS: OTP",
+        ],
+        penali: [
+            { desc: "Vendita doppia (cessazione + attivazione linea)", importo: "300€ + storno 100%" },
+            { desc: "Disconoscimento/Segnalazione", importo: "200€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "500€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "1.000€" },
+        ],
+    },
+    "Enel Energia": {
+        storni: [
+            "Storno 100% entro 2 mesi dall'attivazione",
+            "SSD: non obbligatorio",
+            "Metodo contrattualizzazione RES: OTP",
+            "Metodo contrattualizzazione BUS: Cartaceo",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "300€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "1.000€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "5.000€" },
+        ],
+    },
+    "Plenitude": {
+        storni: [
+            "Nessuno storno",
+            "Subentro: non remunerato",
+            "SSD RES e BUS: obbligatorio (assenza → compenso ridotto al 50%)",
+            "Churn 6 mesi: < 20%",
+            "Metodo contrattualizzazione RES/BUS: OTP",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "300€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "1.000€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "5.000€" },
+        ],
+    },
+    "Edison (2G)": {
+        storni: [
+            "Storno 100% entro 3 mesi dall'attivazione",
+            "SSD: non obbligatorio (assenza → compenso ridotto al 50%)",
+            "Churn 6 mesi: < 20%",
+            "Metodo contrattualizzazione RES: OTP",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "300€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "1.000€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "5.000€" },
+        ],
+    },
+    "HERAcomm": {
+        storni: [
+            "Storno 100% entro 1 mese dall'attivazione",
+            "SSD: non obbligatorio (assenza → compenso ridotto al 50%)",
+            "Churn 6 mesi: < 20%",
+            "Metodo contrattualizzazione RES: OTP",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "300€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "1.000€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "5.000€" },
+        ],
+    },
+    "Argos": {
+        storni: [
+            "Storno 100% entro 1 mese dall'attivazione",
+            "SSD RES: non obbligatorio",
+            "SSD BUS: obbligatorio",
+            "Churn 6 mesi: < 20%",
+            "Metodo contrattualizzazione RES/BUS: OTP",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "300€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "1.000€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "5.000€" },
+        ],
+    },
+    "Luce e Gas": {
+        storni: [
+            "Storno 100% entro 3 mesi dall'attivazione",
+            "SSD: non obbligatorio (assenza → compenso ridotto al 50%)",
+            "Churn 6 mesi: < 20%",
+            "Zone escluse: Campania, Calabria, Basilicata",
+            "Metodo contrattualizzazione RES/BUS: OTP",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "300€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "1.000€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "3.000€" },
+        ],
+    },
+    "Sentra": {
+        storni: [
+            "Storno 100% entro 3 mesi dall'attivazione",
+            "SSD: non obbligatorio (assenza → compenso ridotto al 50%)",
+            "Churn 6 mesi: < 20%",
+            "Metodo contrattualizzazione RES/BUS: OTP",
+        ],
+        penali: [
+            { desc: "Disconoscimento/Segnalazione/Numero di altra persona", importo: "300€" },
+            { desc: "Denuncia da parte di Autorità Giudiziarie", importo: "1.000€" },
+            { desc: "Provvedimenti Cautelari/Sanzionatori/Giudiziari", importo: "3.000€" },
+        ],
     },
     "Magis Dir.": {
         storni: [

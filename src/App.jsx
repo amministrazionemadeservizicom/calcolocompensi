@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { DATA, CATEGORIES, PROVIDER_COLORS, STORNO_RULES } from "./data.js";
+import { DATA, CATEGORIES, PROVIDER_COLORS, STORNO_RULES, GESTORE_IDS } from "./data.js";
 import Calculator from "./Calculator.jsx";
 
 const fmt = (v) => v.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
@@ -30,6 +30,18 @@ const STORNO_SUMMARY = {
   "Wekiwi (SM)": "Cluster E3; Canvass+RID; Enasarco+Rit. 5,60%",
   "AGN Dir.": "Rinnovo 13°m; Ric. Cond 5€/MWh, Biz 2€/MWh",
   "Magis Dir.": "100% non entrati; 50% <6m; SDD/Paperless addon",
+  // 2GEST
+  "Vodafone": "100% ≤12m; SSD min 90%; -1 canone se già Vodafone",
+  "Fastweb (2G)": "SSD obbl. RES+BIZ; OTP",
+  "Wind3 (2G)": "100% ≤9m; SSD obbl.; OTP",
+  "TIM (2G)": "RES 100% ≤6m; BUS 100% ≤10m; SSD obbl. (→50%)",
+  "Enel Energia": "100% ≤2m; SSD non obbl.",
+  "Plenitude": "Nessuno storno; SSD obbl. (→50%); Churn<20%",
+  "Edison (2G)": "100% ≤3m; SSD non obbl. (→50%); Churn<20%",
+  "HERAcomm": "100% ≤1m; SSD non obbl. (→50%); Churn<20%",
+  "Argos": "100% ≤1m; SSD obbl. BIZ",
+  "Luce e Gas": "100% ≤3m; escluse CAL/BAS/CAM; Churn<20%",
+  "Sentra": "100% ≤3m; SSD non obbl. (→50%); Churn<20%",
 };
 
 export default function App() {
@@ -42,6 +54,7 @@ export default function App() {
   const [expanded, setExpanded] = useState(null);
   const [stornoOpen, setStornoOpen] = useState(null);
   const [calcOpen, setCalcOpen] = useState(false);
+  const [discount, setDiscount] = useState(0);
 
   const filtered = useMemo(() => {
     return DATA.filter(r => {
@@ -61,7 +74,7 @@ export default function App() {
   const segments = useMemo(() => [...new Set(DATA.map(r => r.segment))].sort(), []);
   const fornitori = useMemo(() => [...new Set(DATA.map(r => r.fornitore))].sort(), []);
 
-  const totalMax = useMemo(() => filtered.reduce((s, r) => s + r.massimo * qty, 0), [filtered, qty]);
+  const totalMax = useMemo(() => filtered.reduce((s, r) => s + r.massimo * qty * (1 + discount / 100), 0), [filtered, qty, discount]);
 
   const toggleStorno = useCallback((provider, e) => {
     e.stopPropagation();
@@ -181,6 +194,19 @@ export default function App() {
           <option value="ALL">Tutti i fornitori</option>
           {fornitori.map(f => <option key={f} value={f}>{f}</option>)}
         </select>
+        {/* Discount selector */}
+        <select value={discount} onChange={e => setDiscount(parseInt(e.target.value))}
+          style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #333", background: "#1a1a1a", color: "#eee", fontSize: 13, marginLeft: 8 }}>
+          <option value={0}>Nessuno sconto</option>
+          {[-15, -20, -25, -30, -35, -40, -45, -50, -55, -60, -65, -70].map(d => (
+            <option key={d} value={d}>{d}%</option>
+          ))}
+        </select>
+        {/* Export button */}
+        <button onClick={() => import('./exportToExcel').then(m => m.exportToExcel(DATA, discount))}
+          style={{ padding: "8px 12px", borderRadius: 6, background: "#D6006E", color: "#fff", border: "none", marginLeft: 8, cursor: "pointer" }}>
+          Export Excel
+        </button>
         <select value={segFilter} onChange={e => setSegFilter(e.target.value)}
           style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #333", background: "#1a1a1a", color: "#eee", fontSize: 13 }}>
           <option value="ALL">Tutti i segmenti</option>
@@ -208,8 +234,8 @@ export default function App() {
         <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 3px", fontSize: 13 }}>
           <thead>
             <tr style={{ position: "sticky", top: 0, zIndex: 2 }}>
-              {["Fornitore di Servizio", "Gestore", "Seg.", "Prodotto", "Tipo", "Gettone", "RID", "Bol.Web", "Cons.", "MASSIMO", qty > 1 ? `x${qty}` : null, "Storno", "Note"].filter(Boolean).map((h, i) => {
-                const isNumCol = qty > 1 ? (i >= 5 && i <= 10) : (i >= 5 && i <= 9);
+              {["Fornitore di Servizio", "ID", "Gestore", "Seg.", "Prodotto", "Tipo", "Gettone", "RID", "Bol.Web", "Cons.", "MASSIMO", qty > 1 ? `x${qty}` : null, "Storno", "Note"].filter(Boolean).map((h, i) => {
+                const isNumCol = qty > 1 ? (i >= 6 && i <= 11) : (i >= 6 && i <= 10);
                 return (
                   <th key={i} style={{
                     padding: "10px 8px", background: "#222", color: "#aaa", fontWeight: 600, textAlign: isNumCol ? "right" : "left",
@@ -275,6 +301,7 @@ export default function App() {
                   onMouseEnter={e => e.currentTarget.style.background = "#1a1a1a"}
                   onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? "#111" : "#0D0D0D"}>
                   <td style={{ padding: "9px 8px", whiteSpace: "nowrap", fontWeight: 700, color: r.fornitore === "Promup" ? "#F5C518" : "#4DD0E1" }}>{r.fornitore}</td>
+                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: "#fff" }}>{GESTORE_IDS[r.provider] ?? "-"}</td>
                   <td style={{ padding: "9px 8px", whiteSpace: "nowrap" }}>
                     <span style={{ display: "inline-block", width: 4, height: 18, background: pc, borderRadius: 2, marginRight: 8, verticalAlign: "middle" }} />
                     <span style={{ fontWeight: 600, color: pc }}>{r.provider}</span>
@@ -300,12 +327,13 @@ export default function App() {
                   </td>
                   <td style={{ padding: "9px 8px", fontWeight: 500, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.product}</td>
                   <td style={{ padding: "9px 6px", color: "#888", fontSize: 12 }}>{r.tipo}</td>
-                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: r.gettone > 0 ? "#eee" : "#555" }}>{r.gettone > 0 ? fmt(r.gettone) : "—"}</td>
-                  <td style={{ padding: "9px 6px", textAlign: "right", color: r.rid > 0 ? "#4CAF50" : "#333" }}>{r.rid > 0 ? fmt(r.rid) : "—"}</td>
-                  <td style={{ padding: "9px 6px", textAlign: "right", color: r.bolweb > 0 ? "#2196F3" : "#333" }}>{r.bolweb > 0 ? fmt(r.bolweb) : "—"}</td>
-                  <td style={{ padding: "9px 6px", textAlign: "right", color: r.consenso > 0 ? "#FF9800" : "#333" }}>{r.consenso > 0 ? fmt(r.consenso) : "—"}</td>
-                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 700, color: "#F5C518", fontSize: 14 }}>{r.massimo > 0 ? fmt(r.massimo) : "% vedi note"}</td>
-                  {qty > 1 && <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 700, color: "#D6006E" }}>{r.massimo > 0 ? fmt(r.massimo * qty) : "—"}</td>}
+                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: r.gettone > 0 ? "#eee" : "#555" }}>{r.gettone > 0 ? fmt(r.gettone * (1 + discount / 100)) : "—"}</td>
+                  <td style={{ padding: "9px 6px", textAlign: "right", color: r.rid > 0 ? "#4CAF50" : "#333" }}>{r.rid > 0 ? fmt(r.rid * (1 + discount / 100)) : "—"}</td>
+                  <td style={{ padding: "9px 6px", textAlign: "right", color: r.bolweb > 0 ? "#2196F3" : "#333" }}>{r.bolweb > 0 ? fmt(r.bolweb * (1 + discount / 100)) : "—"}</td>
+                  <td style={{ padding: "9px 6px", textAlign: "right", color: r.consenso > 0 ? "#FF9800" : "#333" }}>{r.consenso > 0 ? fmt(r.consenso * (1 + discount / 100)) : "—"}</td>
+                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 700, color: "#F5C518", fontSize: 14 }}>{r.massimo > 0 ? fmt(r.massimo * (1 + discount / 100)) : "% vedi note"}</td>
+                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: "#fff" }}>{GESTORE_IDS[r.provider] ?? "-"}</td>
+                  {qty > 1 && <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 700, color: "#D6006E" }}>{r.massimo > 0 ? fmt(r.massimo * qty * (1 + discount / 100)) : "—"}</td>}
                   <td style={{ padding: "9px 8px", color: "#FF9800", fontSize: 11, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {STORNO_SUMMARY[r.provider] || "—"}
                   </td>
@@ -336,7 +364,7 @@ export default function App() {
       </div>
 
       {/* CALCULATOR SIDEBAR */}
-      <Calculator isOpen={calcOpen} onToggle={() => setCalcOpen(v => !v)} />
+      <Calculator isOpen={calcOpen} onToggle={() => setCalcOpen(v => !v)} discount={discount} />
     </div>
   );
 }
