@@ -44,6 +44,26 @@ const STORNO_SUMMARY = {
   "Sentra": "100% ≤3m; SSD non obbl. (→50%); Churn<20%",
 };
 
+const getTipoProdotto = (r) => {
+  if (r.cat === "DEVICE") return "Device";
+  if (r.tipo === "Luce") return "Energia Elettrica";
+  if (r.tipo === "Gas") return "Gas";
+  if (r.tipo === "Luce/Gas") return "Energia";
+  return "Telefonia";
+};
+
+const getTipoCliente = (r) => {
+  if (r.segment === "RES") return "Privato";
+  if (r.segment === "BIZ" || r.segment === "PMI") return "Business";
+  if (r.segment === "COND") return "Condominio";
+  return "-";
+};
+
+const getGestoreId = (r) => GESTORE_IDS[r.provider] ?? GESTORE_IDS[r.fornitore] ?? "-";
+
+const SEG_LABEL = { RES: "Privato", BIZ: "Business", PMI: "Business", COND: "Condominio" };
+const segLabel = (s) => SEG_LABEL[s] || s;
+
 export default function App() {
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("ALL");
@@ -88,7 +108,7 @@ export default function App() {
 
     return (
       <tr>
-        <td colSpan={qty > 1 ? 13 : 12} style={{ padding: 0 }}>
+        <td colSpan={qty > 1 ? 15 : 14} style={{ padding: 0 }}>
           <div style={{
             background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
             border: "1px solid #D6006E",
@@ -210,7 +230,7 @@ export default function App() {
         <select value={segFilter} onChange={e => setSegFilter(e.target.value)}
           style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #333", background: "#1a1a1a", color: "#eee", fontSize: 13 }}>
           <option value="ALL">Tutti i segmenti</option>
-          {segments.map(s => <option key={s} value={s}>{s}</option>)}
+          {segments.map(s => <option key={s} value={s}>{segLabel(s)}</option>)}
         </select>
         <select value={provFilter} onChange={e => setProvFilter(e.target.value)}
           style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #333", background: "#1a1a1a", color: "#eee", fontSize: 13 }}>
@@ -234,7 +254,7 @@ export default function App() {
         <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 3px", fontSize: 13 }}>
           <thead>
             <tr style={{ position: "sticky", top: 0, zIndex: 2 }}>
-              {["Fornitore di Servizio", "ID", "Gestore", "Seg.", "Prodotto", "Tipo", "Gettone", "RID", "Bol.Web", "Cons.", "MASSIMO", qty > 1 ? `x${qty}` : null, "Storno", "Note"].filter(Boolean).map((h, i) => {
+              {["Fornitore di Servizio", "ID", "Gestore", "Seg.", "Prodotto", "Tipo", "Gettone", "RID", "Bol.Web", "Cons.", "MASSIMO", qty > 1 ? `x${qty}` : null, "Tipo Prodotto", "Tipo Cliente", "Storno", "Note"].filter(Boolean).map((h, i) => {
                 const isNumCol = qty > 1 ? (i >= 6 && i <= 11) : (i >= 6 && i <= 10);
                 return (
                   <th key={i} style={{
@@ -249,7 +269,7 @@ export default function App() {
             {rowsWithStorno.map((item) => {
               if (item.type === "storno") {
                 return stornoOpen === item.provider ? (
-                  <tr key={item.key}><td colSpan={qty > 1 ? 13 : 12} style={{ padding: 0 }}>
+                  <tr key={item.key}><td colSpan={qty > 1 ? 15 : 14} style={{ padding: 0 }}>
                     <div style={{
                       background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
                       border: "1px solid #D6006E", borderRadius: 8,
@@ -301,7 +321,7 @@ export default function App() {
                   onMouseEnter={e => e.currentTarget.style.background = "#1a1a1a"}
                   onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? "#111" : "#0D0D0D"}>
                   <td style={{ padding: "9px 8px", whiteSpace: "nowrap", fontWeight: 700, color: r.fornitore === "Promup" ? "#F5C518" : "#4DD0E1" }}>{r.fornitore}</td>
-                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: "#fff" }}>{GESTORE_IDS[r.provider] ?? "-"}</td>
+                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: "#fff" }}>{getGestoreId(r)}</td>
                   <td style={{ padding: "9px 8px", whiteSpace: "nowrap" }}>
                     <span style={{ display: "inline-block", width: 4, height: 18, background: pc, borderRadius: 2, marginRight: 8, verticalAlign: "middle" }} />
                     <span style={{ fontWeight: 600, color: pc }}>{r.provider}</span>
@@ -323,7 +343,7 @@ export default function App() {
                       display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600,
                       background: r.segment === "RES" ? "#1B5E20" : r.segment === "BIZ" ? "#0D47A1" : r.segment === "COND" ? "#4A148C" : r.segment === "PMI" ? "#BF360C" : "#E65100",
                       color: "#fff"
-                    }}>{r.segment}</span>
+                    }}>{segLabel(r.segment)}</span>
                   </td>
                   <td style={{ padding: "9px 8px", fontWeight: 500, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.product}</td>
                   <td style={{ padding: "9px 6px", color: "#888", fontSize: 12 }}>{r.tipo}</td>
@@ -332,8 +352,9 @@ export default function App() {
                   <td style={{ padding: "9px 6px", textAlign: "right", color: r.bolweb > 0 ? "#2196F3" : "#333" }}>{r.bolweb > 0 ? fmt(r.bolweb * (1 + discount / 100)) : "—"}</td>
                   <td style={{ padding: "9px 6px", textAlign: "right", color: r.consenso > 0 ? "#FF9800" : "#333" }}>{r.consenso > 0 ? fmt(r.consenso * (1 + discount / 100)) : "—"}</td>
                   <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 700, color: "#F5C518", fontSize: 14 }}>{r.massimo > 0 ? fmt(r.massimo * (1 + discount / 100)) : "% vedi note"}</td>
-                  <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: "#fff" }}>{GESTORE_IDS[r.provider] ?? "-"}</td>
                   {qty > 1 && <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 700, color: "#D6006E" }}>{r.massimo > 0 ? fmt(r.massimo * qty * (1 + discount / 100)) : "—"}</td>}
+                  <td style={{ padding: "9px 6px", fontSize: 11, color: "#90CAF9" }}>{getTipoProdotto(r)}</td>
+                  <td style={{ padding: "9px 6px", fontSize: 11, color: "#A5D6A7" }}>{getTipoCliente(r)}</td>
                   <td style={{ padding: "9px 8px", color: "#FF9800", fontSize: 11, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {STORNO_SUMMARY[r.provider] || "—"}
                   </td>
