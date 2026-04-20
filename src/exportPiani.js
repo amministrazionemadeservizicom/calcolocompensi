@@ -248,7 +248,9 @@ export function exportPiani(data, selectedPlan = null) {
                 'ID Gestore':    id,
                 'Tipo Prodotto': tipoProdotto,
                 'Tipo Cliente':  getTipoCliente(row),
-                'Prodotto':      row.product,
+                'Prodotto':      (row.fornitore === 'Noleggio Tech' && row.cat === 'DEVICE')
+                    ? `${row.product} – ${row.periodo || '24/36 mesi'}`
+                    : row.product,
                 'Importo':       importo,
                 'DescImp2':      'RID',
                 'Importo2':      importo2 || 0,
@@ -312,8 +314,12 @@ export function exportCompensazioni(data) {
         const { nome } = getGestoreInfo(row);
         const tipoCliente = getTipoCliente(row);
 
+        const productName = (row.fornitore === 'Noleggio Tech' && row.cat === 'DEVICE')
+            ? `${row.product} – ${row.periodo || '24/36 mesi'}`
+            : row.product;
+
         const makeRow = (tipoProdotto) => {
-            const cols = [tipoProdotto, nome, `${tipoCliente} – ${row.product}`];
+            const cols = [tipoProdotto, nome, `${tipoCliente} – ${productName}`];
             for (const plan of PLANS) {
                 const { base, rid } = getCompForPlan(row, plan.name, plan.ratio);
                 cols.push(fmtNum(base));

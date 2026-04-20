@@ -420,7 +420,11 @@ export default function App() {
                       color: "#fff"
                     }}>{segLabel(r.segment)}</span>
                   </td>
-                  <td style={{ padding: "9px 8px", fontWeight: 500, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.cat === "TELECOM" ? [r.product, r.tecnologia, r.canone ? `${r.canone}/mese` : null, r.tipo].filter(Boolean).join(' – ') : r.product}</td>
+                  <td style={{ padding: "9px 8px", fontWeight: 500, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.cat === "TELECOM"
+  ? [r.product, r.tecnologia, r.canone ? `${r.canone}/mese` : null, r.tipo].filter(Boolean).join(' – ')
+  : r.fornitore === "Noleggio Tech" && r.cat === "DEVICE"
+    ? `${r.product} – ${r.periodo || "24/36 mesi"}`
+    : r.product}</td>
                   <td style={{ padding: "9px 6px", color: "#888", fontSize: 12 }}>{r.cat === "TELECOM" ? "Telefonia" : r.tipo === "Luce" ? "Energia Elettrica" : r.tipo}</td>
                   <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: r.gettone > 0 ? "#eee" : "#555" }}>{r.gettone > 0 ? fmt(r.gettone * (1 + discount / 100)) : "—"}</td>
                   <td style={{ padding: "9px 6px", textAlign: "right", color: r.rid > 0 ? "#4CAF50" : "#333" }}>{r.rid > 0 ? fmt(r.rid * (1 + discount / 100)) : "—"}</td>
