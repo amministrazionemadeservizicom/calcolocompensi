@@ -258,73 +258,10 @@ export function exportPiani(data, selectedPlan = null) {
     }
 }
 
-// ── Fattori gettone per prodotti senza compenso preesistente ──
-// Ogni valore = percentuale del gettone che riceve l'agente
-const ZERO_PLAN_FACTORS = {
-    'FEDERAZIENDE':       0.70,
-    'AFF FEDER':          0.70 * 0.70,   // -30% di FEDERAZIENDE → 0.49
-    'PIANO CONSULENTE J': 0.50,
-    'PIANO EKO':          0.40,
-    'PIANO TAFURO':       0.80,
-    'PIANO MASTER':       0.60,
-    'PIANO GENTILE':      0.70,
-    'PIANO BLASI':        0.70,
-    'PIANO CONSULENTE':   0.60,
-    'PIANO CONS GENT':    0.70 * 0.80,   // -20% di GENTILE → 0.56
-    'ALMAVIRIA':          0.80,
-    'ALMAVIRIA A':        0.70,
-    'PIANO CAPITAL':      0.60 * 0.60,   // -40% di MASTER → 0.36
-    'ILGRECO':            0.90,
-    '10 CONS':            0.60 * 0.90,   // -10% di CONSULENTE → 0.54
-};
 
-// ── Recupera valori RAW (non arrotondati) per l'export CSV compensi ──
-function getCompRaw(row, planName, planRatio) {
-    if (row.compOverride?.[planName]) {
-        return row.compOverride[planName];
-    }
-
-    const id   = row.gestoreId ?? GESTORE_IDS[row.fornitore] ?? GESTORE_IDS[row.provider] ?? '';
-    const nome = (id && GESTORE_NOME_SISTEMA[id]) ?? row.provider ?? '';
-
-    if (NOLEGGIO_IDS.has(id)) {
-        return {
-            base: row.gettone * NOLEGGIO_FEDER_FACTOR * planRatio,
-            rid:  row.rid    * NOLEGGIO_FEDER_FACTOR * planRatio,
-        };
-    }
-
-    if (id === 32) {
-        const factor = windtreFederFactor(row.gettone);
-        return {
-            base: row.gettone * factor * planRatio,
-            rid:  row.rid     * factor * planRatio,
-        };
-    }
-
-    let csvEntry = null;
-    if (row.csvKey) {
-        csvEntry = CSV_COMPENSI[row.csvKey]?.[planName];
-    } else {
-        csvEntry = CSV_COMPENSI[`${nome}|${row.product}`]?.[planName];
-    }
-
-    if (csvEntry) {
-        return { base: csvEntry.base, rid: csvEntry.rid };
-    }
-
-    // Nessun compenso preesistente → calcola con i fattori default sul gettone
-    const factor = ZERO_PLAN_FACTORS[planName] ?? 0.70;
-    return {
-        base: row.gettone * factor,
-        rid:  row.rid     * factor,
-    };
-}
 
 /**
- * Genera CSV identico a compensi_2026-04-18.csv con i valori correnti.
- * - Prima emette tutti i 307 prodotti preesistenti dal CSV originale (valori invariati)
- * - Poi aggiunge i prodotti nuovi di data.js non già presenti nel CSV (con fattori default)
+ * Genera CSV compensi con i valori reali calcolati da getCompForPlan (stessi valori del UI).
  */
 export function exportCompensazioni(data) {
     const today = new Date().toISOString().slice(0, 10);
@@ -356,7 +293,7 @@ export function exportCompensazioni(data) {
         const makeRow = (tipoProdotto) => {
             const cols = [tipoProdotto, nome, `${tipoCliente} – ${row.product}`];
             for (const plan of PLANS) {
-                const { base, rid } = getCompRaw(row, plan.name, plan.ratio);
+                const { base, rid } = getCompForPlan(row, plan.name, plan.ratio);
                 cols.push(fmtNum(base));
                 cols.push(fmtNum(rid));
                 cols.push('');
