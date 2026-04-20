@@ -1,6 +1,10 @@
 import { useState, useMemo, useCallback } from "react";
 import { DATA, CATEGORIES, PROVIDER_COLORS, STORNO_RULES, GESTORE_IDS } from "./data.js";
+import { PLANS, PLAN_NAMES, GESTORE_NOME_SISTEMA, getCompForPlan } from "./exportPiani.js";
 import Calculator from "./Calculator.jsx";
+
+const FEDER_FACTOR = 0.5 / 0.700;
+const floorTen = (v) => Math.floor(v / 10) * 10;
 
 const fmt = (v) => v.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
 
@@ -46,7 +50,7 @@ const STORNO_SUMMARY = {
 
 const getTipoProdotto = (r) => {
   if (r.cat === "DEVICE") return "Device";
-  if (r.tipo === "Luce") return "Energia Elettrica";
+  if (r.tipo === "Luce" || r.tipo === "Energia Elettrica") return "Energia Elettrica";
   if (r.tipo === "Gas") return "Gas";
   if (r.tipo === "Luce/Gas") return "Energia";
   return "Telefonia";
@@ -59,7 +63,7 @@ const getTipoCliente = (r) => {
   return "-";
 };
 
-const getGestoreId = (r) => GESTORE_IDS[r.provider] ?? GESTORE_IDS[r.fornitore] ?? "-";
+const getGestoreId = (r) => r.gestoreId ?? GESTORE_IDS[r.fornitore] ?? GESTORE_IDS[r.provider] ?? "-";
 
 const SEG_LABEL = { RES: "Privato", BIZ: "Business", PMI: "Business", COND: "Condominio" };
 const segLabel = (s) => SEG_LABEL[s] || s;
@@ -75,6 +79,8 @@ export default function App() {
   const [stornoOpen, setStornoOpen] = useState(null);
   const [calcOpen, setCalcOpen] = useState(false);
   const [discount, setDiscount] = useState(0);
+  const [customPlanName, setCustomPlanName] = useState("PIANO CUSTOM");
+  const [selectedPlan, setSelectedPlan] = useState("AFF FEDER");
 
   const filtered = useMemo(() => {
     return DATA.filter(r => {
@@ -96,6 +102,23 @@ export default function App() {
 
   const totalMax = useMemo(() => filtered.reduce((s, r) => s + r.massimo * qty * (1 + discount / 100), 0), [filtered, qty, discount]);
 
+  const selectedPlanData = useMemo(() => PLANS.find(p => p.name === selectedPlan), [selectedPlan]);
+  const totalPiano = useMemo(() => {
+    if (!selectedPlanData) return 0;
+    return filtered.reduce((s, r) => s + getCompForPlan(r, selectedPlanData.name, selectedPlanData.ratio).base * qty, 0);
+  }, [filtered, selectedPlanData, qty]);
+
+  const totalMargine = useMemo(() => {
+    if (!selectedPlanData) return 0;
+    return filtered.reduce((s, r) => {
+      const comp = getCompForPlan(r, selectedPlanData.name, selectedPlanData.ratio).base;
+      const margine = r.gettone > 0 ? r.gettone - comp : 0;
+      return s + margine * qty;
+    }, 0);
+  }, [filtered, selectedPlanData, qty]);
+
+  const totalGettone = useMemo(() => filtered.reduce((s, r) => s + r.gettone * qty, 0), [filtered, qty]);
+
   const toggleStorno = useCallback((provider, e) => {
     e.stopPropagation();
     setStornoOpen(prev => prev === provider ? null : provider);
@@ -108,7 +131,7 @@ export default function App() {
 
     return (
       <tr>
-        <td colSpan={qty > 1 ? 15 : 14} style={{ padding: 0 }}>
+        <td colSpan={99} style={{ padding: 0 }}>
           <div style={{
             background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
             border: "1px solid #D6006E",
@@ -155,21 +178,30 @@ export default function App() {
   };
 
   // Group rows by provider to show storno panel after last row of each provider
+  // Espande le righe con tipo combinato (es. Luce/Gas, Fisso/Mobile) in righe separate
+  const expandedRows = useMemo(() => filtered.flatMap(r => {
+    if (!r.tipo || !r.tipo.includes("/")) return [r];
+    return r.tipo.split("/").map(t => {
+      const tipo = t.trim() === "Luce" ? "Energia Elettrica" : t.trim();
+      return { ...r, tipo };
+    });
+  }), [filtered]);
+
   const rowsWithStorno = useMemo(() => {
     const result = [];
     let lastProvider = null;
-    filtered.forEach((r, i) => {
+    expandedRows.forEach((r, i) => {
       if (lastProvider && lastProvider !== r.provider && STORNO_RULES[lastProvider]) {
         result.push({ type: "storno", provider: lastProvider, key: `storno-${lastProvider}` });
       }
-      result.push({ type: "row", data: r, index: i, key: `row-${i}` });
+      result.push({ type: "row", data: r, index: i, key: `row-${i}-${r.tipo}` });
       lastProvider = r.provider;
     });
     if (lastProvider && STORNO_RULES[lastProvider]) {
       result.push({ type: "storno", provider: lastProvider, key: `storno-${lastProvider}` });
     }
     return result;
-  }, [filtered]);
+  }, [expandedRows]);
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", background: "#0D0D0D", color: "#E8E8E8", minHeight: "100vh", padding: "0" }}>
@@ -215,17 +247,51 @@ export default function App() {
           {fornitori.map(f => <option key={f} value={f}>{f}</option>)}
         </select>
         {/* Discount selector */}
-        <select value={discount} onChange={e => setDiscount(parseInt(e.target.value))}
+        <select value={discount} onChange={e => { setDiscount(parseInt(e.target.value)); }}
           style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #333", background: "#1a1a1a", color: "#eee", fontSize: 13, marginLeft: 8 }}>
           <option value={0}>Nessuno sconto</option>
           {[-15, -20, -25, -30, -35, -40, -45, -50, -55, -60, -65, -70].map(d => (
             <option key={d} value={d}>{d}%</option>
           ))}
         </select>
+        {discount !== 0 && (
+          <>
+            <input
+              type="text"
+              value={customPlanName}
+              onChange={e => setCustomPlanName(e.target.value.toUpperCase())}
+              placeholder="Nome piano..."
+              style={{ padding: "8px 10px", borderRadius: 6, border: "1px solid #F5C518", background: "#1a1000", color: "#F5C518", fontSize: 12, fontWeight: 700, width: 150, marginLeft: 4 }}
+            />
+            <button
+              onClick={() => {
+                const ratio = 1.0 * (1 + discount / 100);
+                import('./exportPiani').then(m => m.exportPiani(DATA, { name: customPlanName, ratio }));
+              }}
+              style={{ padding: "8px 12px", borderRadius: 6, background: "#F5C518", color: "#000", border: "none", marginLeft: 4, cursor: "pointer", fontWeight: 700, fontSize: 12 }}>
+              ⬇ Esporta Piano
+            </button>
+          </>
+        )}
         {/* Export button */}
         <button onClick={() => import('./exportToExcel').then(m => m.exportToExcel(DATA, discount))}
           style={{ padding: "8px 12px", borderRadius: 6, background: "#D6006E", color: "#fff", border: "none", marginLeft: 8, cursor: "pointer" }}>
           Export Excel
+        </button>
+        {/* Export piani agenti */}
+        <select value={selectedPlan} onChange={e => setSelectedPlan(e.target.value)}
+          style={{ padding: "8px 10px", borderRadius: 6, border: "1px solid #333", background: "#1a1a1a", color: "#eee", fontSize: 12, marginLeft: 8 }}>
+          {PLAN_NAMES.map(p => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+        <button onClick={() => import('./exportPiani').then(m => m.exportPiani(DATA, selectedPlan))}
+          style={{ padding: "8px 12px", borderRadius: 6, background: "#2E7D32", color: "#fff", border: "none", marginLeft: 4, cursor: "pointer" }}>
+          Piano Singolo
+        </button>
+        <button onClick={() => import('./exportPiani').then(m => m.exportCompensazioni(DATA))}
+          style={{ padding: "8px 12px", borderRadius: 6, background: "#4A148C", color: "#fff", border: "none", marginLeft: 4, cursor: "pointer" }}>
+          Export Compensi CSV
         </button>
         <select value={segFilter} onChange={e => setSegFilter(e.target.value)}
           style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #333", background: "#1a1a1a", color: "#eee", fontSize: 13 }}>
@@ -240,12 +306,9 @@ export default function App() {
       </div>
 
       {/* SUMMARY BAR */}
-      <div style={{ padding: "10px 24px", background: "#1a1a1a", borderBottom: "1px solid #222", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+      <div style={{ padding: "10px 24px", background: "#1a1a1a", borderBottom: "1px solid #222" }}>
         <span style={{ fontSize: 13, color: "#888" }}>
-          {filtered.length} prodotti trovati su {DATA.length}
-        </span>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#F5C518" }}>
-          Totale Gettoni Massimi (x{qty}): {fmt(totalMax)}
+          {expandedRows.length} prodotti trovati su {DATA.length}
         </span>
       </div>
 
@@ -254,12 +317,18 @@ export default function App() {
         <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 3px", fontSize: 13 }}>
           <thead>
             <tr style={{ position: "sticky", top: 0, zIndex: 2 }}>
-              {["Fornitore di Servizio", "ID", "Gestore", "Seg.", "Prodotto", "Tipo", "Gettone", "RID", "Bol.Web", "Cons.", "MASSIMO", qty > 1 ? `x${qty}` : null, "Tipo Prodotto", "Tipo Cliente", "Storno", "Note"].filter(Boolean).map((h, i) => {
-                const isNumCol = qty > 1 ? (i >= 6 && i <= 11) : (i >= 6 && i <= 10);
+              {["Fornitore di Servizio", "ID", "Gestore", "Seg.", "Prodotto", "Tipo", "Gettone", "RID", "Bol.Web", "Cons.", "MASSIMO", qty > 1 ? `x${qty}` : null, `GUADAGNO ${selectedPlan}`, "RESTA A ME", "Tipo Prodotto", "Tipo Cliente", "Storno", "Note"].filter(Boolean).map((h, i) => {
+                const isNumCol = qty > 1 ? (i >= 6 && i <= 13) : (i >= 6 && i <= 12);
+                const isPianoCol = h.startsWith("GUADAGNO");
+                const isMargineCol = h === "RESTA A ME";
                 return (
                   <th key={i} style={{
-                    padding: "10px 8px", background: "#222", color: "#aaa", fontWeight: 600, textAlign: isNumCol ? "right" : "left",
-                    borderBottom: "2px solid #D6006E", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap"
+                    padding: "10px 8px",
+                    background: isPianoCol ? "#0a2a0a" : isMargineCol ? "#1a1000" : "#222",
+                    color: isPianoCol ? "#00E5FF" : isMargineCol ? "#F5C518" : "#aaa",
+                    fontWeight: 600, textAlign: isNumCol ? "right" : "left",
+                    borderBottom: isPianoCol ? "2px solid #00E5FF" : isMargineCol ? "2px solid #F5C518" : "2px solid #D6006E",
+                    fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap"
                   }}>{h}</th>
                 );
               })}
@@ -269,7 +338,7 @@ export default function App() {
             {rowsWithStorno.map((item) => {
               if (item.type === "storno") {
                 return stornoOpen === item.provider ? (
-                  <tr key={item.key}><td colSpan={qty > 1 ? 15 : 14} style={{ padding: 0 }}>
+                  <tr key={item.key}><td colSpan={99} style={{ padding: 0 }}>
                     <div style={{
                       background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
                       border: "1px solid #D6006E", borderRadius: 8,
@@ -312,7 +381,9 @@ export default function App() {
 
               const r = item.data;
               const i = item.index;
-              const pc = PROVIDER_COLORS[r.provider] || "#666";
+              const gestoreIdVal = getGestoreId(r);
+              const displayProvider = r.gestoreNome || (gestoreIdVal && GESTORE_NOME_SISTEMA[gestoreIdVal]) || (r.cat === "DEVICE" ? r.fornitore : r.provider);
+              const pc = PROVIDER_COLORS[displayProvider] || PROVIDER_COLORS[r.provider] || "#666";
               const hasStorno = !!STORNO_RULES[r.provider];
 
               return (
@@ -324,7 +395,7 @@ export default function App() {
                   <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: "#fff" }}>{getGestoreId(r)}</td>
                   <td style={{ padding: "9px 8px", whiteSpace: "nowrap" }}>
                     <span style={{ display: "inline-block", width: 4, height: 18, background: pc, borderRadius: 2, marginRight: 8, verticalAlign: "middle" }} />
-                    <span style={{ fontWeight: 600, color: pc }}>{r.provider}</span>
+                    <span style={{ fontWeight: 600, color: pc }}>{displayProvider}</span>
                     {hasStorno && (
                       <button className="storno-btn" onClick={(e) => toggleStorno(r.provider, e)}
                         style={{
@@ -345,14 +416,38 @@ export default function App() {
                       color: "#fff"
                     }}>{segLabel(r.segment)}</span>
                   </td>
-                  <td style={{ padding: "9px 8px", fontWeight: 500, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.product}</td>
-                  <td style={{ padding: "9px 6px", color: "#888", fontSize: 12 }}>{r.tipo}</td>
+                  <td style={{ padding: "9px 8px", fontWeight: 500, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.cat === "TELECOM" ? [r.product, r.tecnologia, r.canone ? `${r.canone}/mese` : null, r.tipo].filter(Boolean).join(' – ') : r.product}</td>
+                  <td style={{ padding: "9px 6px", color: "#888", fontSize: 12 }}>{r.cat === "TELECOM" ? "Telefonia" : r.tipo === "Luce" ? "Energia Elettrica" : r.tipo}</td>
                   <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 600, color: r.gettone > 0 ? "#eee" : "#555" }}>{r.gettone > 0 ? fmt(r.gettone * (1 + discount / 100)) : "—"}</td>
                   <td style={{ padding: "9px 6px", textAlign: "right", color: r.rid > 0 ? "#4CAF50" : "#333" }}>{r.rid > 0 ? fmt(r.rid * (1 + discount / 100)) : "—"}</td>
                   <td style={{ padding: "9px 6px", textAlign: "right", color: r.bolweb > 0 ? "#2196F3" : "#333" }}>{r.bolweb > 0 ? fmt(r.bolweb * (1 + discount / 100)) : "—"}</td>
                   <td style={{ padding: "9px 6px", textAlign: "right", color: r.consenso > 0 ? "#FF9800" : "#333" }}>{r.consenso > 0 ? fmt(r.consenso * (1 + discount / 100)) : "—"}</td>
                   <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 700, color: "#F5C518", fontSize: 14 }}>{r.massimo > 0 ? fmt(r.massimo * (1 + discount / 100)) : "% vedi note"}</td>
                   {qty > 1 && <td style={{ padding: "9px 8px", textAlign: "right", fontWeight: 700, color: "#D6006E" }}>{r.massimo > 0 ? fmt(r.massimo * qty * (1 + discount / 100)) : "—"}</td>}
+                  {(() => {
+                    if (!selectedPlanData) return <><td>—</td><td>—</td></>;
+                    const { base: comp, rid: compRid } = getCompForPlan(r, selectedPlanData.name, selectedPlanData.ratio);
+                    const total = comp * (qty > 1 ? qty : 1);
+                    const margine = r.gettone > 0 ? r.gettone - comp : 0;
+                    const marginePerc = r.gettone > 0 ? Math.round((margine / r.gettone) * 100) : 0;
+                    const margineTotal = margine * (qty > 1 ? qty : 1);
+                    return (
+                      <>
+                        <td style={{ padding: "9px 8px", textAlign: "right", background: "#071a07", borderLeft: "2px solid #00E5FF" }}>
+                          <div style={{ fontWeight: 800, color: "#00E5FF", fontSize: 14 }}>{total.toLocaleString("it-IT")} €</div>
+                          {compRid > 0 && (
+                            <div style={{ color: "#4CAF50", fontSize: 12, fontWeight: 700 }}>
+                              + {(compRid * (qty > 1 ? qty : 1)).toLocaleString("it-IT")} € RID
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ padding: "9px 8px", textAlign: "right", background: "#100d00", borderLeft: "2px solid #F5C518" }}>
+                          <span style={{ fontWeight: 800, color: "#F5C518", fontSize: 14 }}>{margineTotal.toLocaleString("it-IT")} €</span>
+                          <div style={{ color: "#aaa", fontSize: 10, fontWeight: 600 }}>{marginePerc}%</div>
+                        </td>
+                      </>
+                    );
+                  })()}
                   <td style={{ padding: "9px 6px", fontSize: 11, color: "#90CAF9" }}>{getTipoProdotto(r)}</td>
                   <td style={{ padding: "9px 6px", fontSize: 11, color: "#A5D6A7" }}>{getTipoCliente(r)}</td>
                   <td style={{ padding: "9px 8px", color: "#FF9800", fontSize: 11, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -380,7 +475,13 @@ export default function App() {
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#1a1a1a", borderTop: "1px solid #333", padding: "8px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, zIndex: 10 }}>
         <span style={{ color: "#666" }}>SempliCom • MADE SRL</span>
         <span style={{ color: "#F5C518", fontWeight: 700, fontSize: 14 }}>
-          Totale: {fmt(totalMax)} {qty > 1 && `(${filtered.length} × ${qty})`}
+          Gettoni: {fmt(totalMax)}
+        </span>
+        <span style={{ color: "#00E5FF", fontWeight: 800, fontSize: 15 }}>
+          💰 {selectedPlan}: {totalPiano.toLocaleString("it-IT")} €
+        </span>
+        <span style={{ color: "#F5C518", fontWeight: 800, fontSize: 15 }}>
+          🏦 Mio: {totalMargine.toLocaleString("it-IT")} € ({totalGettone > 0 ? Math.round(totalMargine / totalGettone * 100) : 0}%)
         </span>
       </div>
 
