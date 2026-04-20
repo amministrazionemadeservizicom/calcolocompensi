@@ -22,6 +22,7 @@ export const PLANS = [
     { name: 'PIANO CAPITAL',      ratio: 0.662 },
     { name: 'ILGRECO',            ratio: 1.101 },
     { name: '10 CONS',            ratio: 0.848 },
+    { name: 'PIANO CASSANO',      ratio: 0.800 },
 ];
 
 export const PLAN_NAMES = PLANS.map(p => p.name);
@@ -50,6 +51,20 @@ const rnd10 = (v) => Math.round(v / 10) * 10;
 const rnd5  = (v) => Math.round(v / 5)  * 5;
 
 export function getCompForPlan(row, planName, planRatio) {
+    // Piani con formula fissa: ignorano sempre compOverride
+    // PIANO BLASI = gettone -20%
+    if (planName === 'PIANO BLASI') {
+        return {
+            base: rnd10((row.gettone || 0) * 0.80),
+            rid:  rnd5((row.rid  || 0) * 0.80),
+        };
+    }
+
+    // Override per-prodotto: ha priorità su tutto il resto
+    if (row.compOverride?.[planName]) {
+        return row.compOverride[planName];
+    }
+
     // AFF FEDER = sempre esattamente FEDERAZIENDE × 0.70, arrotondato a decina/5
     if (planName === 'AFF FEDER') {
         const feder = getCompForPlan(row, 'FEDERAZIENDE', 1.000);
@@ -59,11 +74,27 @@ export function getCompForPlan(row, planName, planRatio) {
         };
     }
 
-    // ALMAVIRIA A = gettone -15% poi -20% = × 0.68
+    // ALMAVIRIA A = gettone × 0.68
     if (planName === 'ALMAVIRIA A') {
         return {
             base: rnd10((row.gettone || 0) * 0.68),
             rid:  rnd5((row.rid  || 0) * 0.68),
+        };
+    }
+
+    // PIANO CASSANO = gettone -30%
+    if (planName === 'PIANO CASSANO') {
+        return {
+            base: rnd10((row.gettone || 0) * 0.70),
+            rid:  rnd5((row.rid  || 0) * 0.70),
+        };
+    }
+
+    // ILGRECO = gettone -10%
+    if (planName === 'ILGRECO') {
+        return {
+            base: rnd10((row.gettone || 0) * 0.90),
+            rid:  rnd5((row.rid  || 0) * 0.90),
         };
     }
 
@@ -73,11 +104,6 @@ export function getCompForPlan(row, planName, planRatio) {
             base: rnd10((row.gettone || 0) * 0.765),
             rid:  rnd5((row.rid  || 0) * 0.765),
         };
-    }
-
-    // Override per-prodotto per piano specifico
-    if (row.compOverride?.[planName]) {
-        return row.compOverride[planName];
     }
 
     const id   = row.gestoreId ?? GESTORE_IDS[row.fornitore] ?? GESTORE_IDS[row.provider] ?? '';

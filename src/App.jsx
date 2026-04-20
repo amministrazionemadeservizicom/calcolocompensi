@@ -289,6 +289,10 @@ export default function App() {
           style={{ padding: "8px 12px", borderRadius: 6, background: "#2E7D32", color: "#fff", border: "none", marginLeft: 4, cursor: "pointer" }}>
           Piano Singolo
         </button>
+        <button onClick={() => import('./exportPdf').then(m => m.exportPianoPdf(DATA, selectedPlan))}
+          style={{ padding: "8px 12px", borderRadius: 6, background: "#E91E8C", color: "#fff", border: "none", marginLeft: 4, cursor: "pointer" }}>
+          📄 PDF Piano
+        </button>
         <button onClick={() => import('./exportPiani').then(m => m.exportCompensazioni(DATA))}
           style={{ padding: "8px 12px", borderRadius: 6, background: "#4A148C", color: "#fff", border: "none", marginLeft: 4, cursor: "pointer" }}>
           Export Compensi CSV
