@@ -237,36 +237,42 @@ export function exportPiani(data, selectedPlan = null) {
             // Lion non è convenzionato con FEDERAZIENDE e AFF FEDER
             if (id === 60 && LION_EXCLUDED.has(plan.name)) return [];
 
-            const { base: importo, rid: importo2 } = getCompForPlan(row, plan.name, plan.ratio);
+            // Noleggio Tech DEVICE: espandi per periodo
+            const periodi = (row.fornitore === 'Noleggio Tech' && row.cat === 'DEVICE')
+                ? (row.periodi ?? ['24 mesi', '36 mesi'])
+                : [null];
 
-            const makeRow = (tipoProdotto = getTipoProdotto(row)) => ({
-                'Nome Piano':    plan.name,
-                'Data Inizio':   '01/01/2026',
-                'Data Fine':     '31/12/2026',
-                'Stato':         1,
-                'Nome Gestore':  nome,
-                'ID Gestore':    id,
-                'Tipo Prodotto': tipoProdotto,
-                'Tipo Cliente':  getTipoCliente(row),
-                'Prodotto':      (row.fornitore === 'Noleggio Tech' && row.cat === 'DEVICE')
-                    ? `${row.product} – ${row.periodo || '24/36 mesi'}`
-                    : row.product,
-                'Importo':       importo,
-                'DescImp2':      'RID',
-                'Importo2':      importo2 || 0,
-                'DescImp3':      null,
-                'Importo3':      null,
-                'DescImp4':      null,
-                'Importo4':      null,
-                'DescImp5':      null,
-                'Importo5':      null,
+            return periodi.flatMap(periodo => {
+                const r = periodo ? { ...row, periodo } : row;
+                const { base: importo, rid: importo2 } = getCompForPlan(r, plan.name, plan.ratio);
+                const productName = periodo ? `${row.product} – ${periodo}` : row.product;
+
+                const makeRow = (tipoProdotto = getTipoProdotto(row)) => ({
+                    'Nome Piano':    plan.name,
+                    'Data Inizio':   '01/01/2026',
+                    'Data Fine':     '31/12/2026',
+                    'Stato':         1,
+                    'Nome Gestore':  nome,
+                    'ID Gestore':    id,
+                    'Tipo Prodotto': tipoProdotto,
+                    'Tipo Cliente':  getTipoCliente(row),
+                    'Prodotto':      productName,
+                    'Importo':       importo,
+                    'DescImp2':      'RID',
+                    'Importo2':      importo2 || 0,
+                    'DescImp3':      null,
+                    'Importo3':      null,
+                    'DescImp4':      null,
+                    'Importo4':      null,
+                    'DescImp5':      null,
+                    'Importo5':      null,
+                });
+
+                if (row.tipo && row.tipo.includes('Luce') && row.tipo.includes('Gas')) {
+                    return [makeRow('Energia Elettrica'), makeRow('Gas')];
+                }
+                return [makeRow()];
             });
-
-            // Prodotti con tipo che include sia Luce che Gas → due righe separate
-            if (row.tipo && row.tipo.includes('Luce') && row.tipo.includes('Gas')) {
-                return [makeRow('Energia Elettrica'), makeRow('Gas')];
-            }
-            return [makeRow()];
         });
 
         const ws = XLSX.utils.json_to_sheet(sheetData);
@@ -314,28 +320,35 @@ export function exportCompensazioni(data) {
         const { nome } = getGestoreInfo(row);
         const tipoCliente = getTipoCliente(row);
 
-        const productName = (row.fornitore === 'Noleggio Tech' && row.cat === 'DEVICE')
-            ? `${row.product} – ${row.periodo || '24/36 mesi'}`
-            : row.product;
+        // Noleggio Tech DEVICE: espandi per periodo (default 24+36 mesi)
+        const periodi = (row.fornitore === 'Noleggio Tech' && row.cat === 'DEVICE')
+            ? (row.periodi ?? ['24 mesi', '36 mesi'])
+            : [null];
 
-        const makeRow = (tipoProdotto) => {
-            const cols = [tipoProdotto, nome, `${tipoCliente} – ${productName}`];
-            for (const plan of PLANS) {
-                const { base, rid } = getCompForPlan(row, plan.name, plan.ratio);
-                cols.push(fmtNum(base));
-                cols.push(fmtNum(rid));
-                cols.push('');
+        periodi.forEach(periodo => {
+            const productName = periodo
+                ? `${row.product} – ${periodo}`
+                : row.product;
+
+            const makeRow = (tipoProdotto) => {
+                const cols = [tipoProdotto, nome, `${tipoCliente} – ${productName}`];
+                for (const plan of PLANS) {
+                    const r = periodo ? { ...row, periodo } : row;
+                    const { base, rid } = getCompForPlan(r, plan.name, plan.ratio);
+                    cols.push(fmtNum(base));
+                    cols.push(fmtNum(rid));
+                    cols.push('');
+                }
+                return cols.join(';');
+            };
+
+            if (row.tipo && row.tipo.includes('Luce') && row.tipo.includes('Gas')) {
+                csvRows.push(makeRow('Energia Elettrica'));
+                csvRows.push(makeRow('Gas'));
+            } else {
+                csvRows.push(makeRow(getTipoProdotto(row)));
             }
-            return cols.join(';');
-        };
-
-        // Solo prodotti combinati Luce/Gas generano due righe separate
-        if (row.tipo && row.tipo.includes('Luce') && row.tipo.includes('Gas')) {
-            csvRows.push(makeRow('Energia Elettrica'));
-            csvRows.push(makeRow('Gas'));
-        } else {
-            csvRows.push(makeRow(getTipoProdotto(row)));
-        }
+        });
     });
 
     const bom = '\uFEFF';

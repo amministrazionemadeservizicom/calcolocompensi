@@ -180,6 +180,12 @@ export default function App() {
   // Group rows by provider to show storno panel after last row of each provider
   // Espande le righe con tipo combinato (es. Luce/Gas, Fisso/Mobile) in righe separate
   const expandedRows = useMemo(() => filtered.flatMap(r => {
+    // Noleggio Tech DEVICE: espandi per periodo (default 24+36 mesi)
+    if (r.fornitore === "Noleggio Tech" && r.cat === "DEVICE") {
+      const periodi = r.periodi ?? ["24 mesi", "36 mesi"];
+      return periodi.map(p => ({ ...r, periodo: p }));
+    }
+    // Luce/Gas: espandi in due righe separate
     if (!r.tipo || !r.tipo.includes("/")) return [r];
     return r.tipo.split("/").map(t => {
       const tipo = t.trim() === "Luce" ? "Energia Elettrica" : t.trim();
