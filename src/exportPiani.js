@@ -307,14 +307,10 @@ export function exportCompensazioni(data) {
 
     const csvRows = [headerCols.join(';')];
 
-    // ── Tutti i prodotti di data.js (esclusi Noleggio e Wind Tre già nel CSV canonico) ──
+    // ── Tutti i prodotti di data.js ──
     data.forEach(row => {
         const { nome } = getGestoreInfo(row);
         const tipoCliente = getTipoCliente(row);
-
-        // Noleggio e Wind Tre: hanno formule dedicate, già nel CSV con nome gestore canonico
-        const id = row.gestoreId ?? GESTORE_IDS[row.fornitore] ?? GESTORE_IDS[row.provider] ?? '';
-        if (NOLEGGIO_IDS.has(id) || id === 32) return;
 
         const makeRow = (tipoProdotto) => {
             const cols = [tipoProdotto, nome, `${tipoCliente} – ${row.product}`];
