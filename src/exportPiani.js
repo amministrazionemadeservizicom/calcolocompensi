@@ -52,11 +52,79 @@ const rnd5  = (v) => Math.round(v / 5)  * 5;
 
 export function getCompForPlan(row, planName, planRatio) {
     // Piani con formula fissa: ignorano sempre compOverride
+    // PIANO EKO = identico a 10 CONS (formula fissa, ignora compOverride)
+    if (planName === 'PIANO EKO') {
+        return getCompForPlan(row, '10 CONS', PLANS.find(p => p.name === '10 CONS').ratio);
+    }
+
+    // PIANO TAFURO = gettone -20% (formula fissa, ignora compOverride)
+    // Su Lion: gettone -5€
+    if (planName === 'PIANO TAFURO') {
+        if (row.provider === 'Lion') {
+            return {
+                base: (row.gettone || 0) - 5,
+                rid:  (row.rid || 0),
+            };
+        }
+        return {
+            base: Math.round((row.gettone || 0) * 0.80),
+            rid:  Math.round((row.rid || 0) * 0.80),
+        };
+    }
+
+    // PIANO MASTER = identico a FEDERAZIENDE
+    if (planName === 'PIANO MASTER') {
+        return getCompForPlan(row, 'FEDERAZIENDE', 1.000);
+    }
+
+    // PIANO CAPITAL = identico ad AFF FEDER
+    if (planName === 'PIANO CAPITAL') {
+        return getCompForPlan(row, 'AFF FEDER', PLANS.find(p => p.name === 'AFF FEDER').ratio);
+    }
+
     // PIANO BLASI = gettone -20%
+    // Per SuperMoney il rid è sempre fisso a 20€
     if (planName === 'PIANO BLASI') {
         return {
             base: rnd10((row.gettone || 0) * 0.80),
-            rid:  rnd5((row.rid  || 0) * 0.80),
+            rid:  row.fornitore === 'SuperMoney' ? 20 : rnd5((row.rid || 0) * 0.80),
+        };
+    }
+
+    // ILGRECO = gettone -10% (formula fissa, ignora compOverride)
+    // Per SuperMoney il rid è sempre fisso a 20€
+    if (planName === 'ILGRECO') {
+        return {
+            base: Math.round((row.gettone || 0) * 0.90),
+            rid:  row.fornitore === 'SuperMoney' ? 20 : Math.round((row.rid || 0) * 0.90),
+        };
+    }
+
+    // PIANO GENTILE = gettone -20% (formula fissa, ignora compOverride)
+    // Per SuperMoney il rid è sempre fisso a 5€
+    if (planName === 'PIANO GENTILE') {
+        return {
+            base: Math.round((row.gettone || 0) * 0.70),
+            rid:  row.fornitore === 'SuperMoney' ? 5 : Math.round((row.rid || 0) * 0.80),
+        };
+    }
+
+    // PIANO CONS GENT = PIANO GENTILE -20% (formula fissa, ignora compOverride)
+    // Per SuperMoney il rid è sempre fisso a 10€
+    if (planName === 'PIANO CONS GENT') {
+        const gent = getCompForPlan(row, 'PIANO GENTILE', PLANS.find(p => p.name === 'PIANO GENTILE').ratio);
+        return {
+            base: Math.round(gent.base * 0.80),
+            rid:  row.fornitore === 'SuperMoney' ? 10 : Math.round(gent.rid * 0.80),
+        };
+    }
+
+    // 10 CONS e PIANO CONSULENTE J = PIANO CONSULENTE -10% (formula fissa, ignora compOverride)
+    if (planName === '10 CONS' || planName === 'PIANO CONSULENTE J') {
+        const cons = getCompForPlan(row, 'PIANO CONSULENTE', PLANS.find(p => p.name === 'PIANO CONSULENTE').ratio);
+        return {
+            base: Math.round(cons.base * 0.90),
+            rid:  Math.round(cons.rid  * 0.90),
         };
     }
 
