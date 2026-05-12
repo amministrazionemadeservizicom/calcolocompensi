@@ -255,10 +255,191 @@ function MagisCalculator() {
     );
 }
 
+// ═══════ DUFERCO ENERGIA LOGIC ═══════
+// Formula volumetrica: upFront = base + vol × consumo
+//                      prov1Anno = upFront + ric1vol × consumo
+//                      prov2Anno = ric13Pod × 12 + ric13vol × consumo
+// Formula flat (Biz New): upFront = base
+//                          prov1Anno = base + ric1Pod × 12
+//                          prov2Anno = ric13Pod × 12
+const DUFERCO_BIZ_EE = [
+    { id: "mil_29",    label: "MILLENIAL 0 < 29,99 MWh",    base: 120, volMwh: 3.5, ric1Mwh: 0,   ric13Pod: 6.5, ric13Mwh: 2.75, tipConsumo: 8   },
+    { id: "viv_29",    label: "VIVACE PLUS 0 < 29,99 MWh",  base: 130, volMwh: 3.0, ric1Mwh: 2.5, ric13Pod: 8.0, ric13Mwh: 4.00, tipConsumo: 8   },
+    { id: "nxt_29",    label: "NEXT GEN 0 < 29,99 MWh",     base: 150, volMwh: 8.0, ric1Mwh: 1.0, ric13Pod: 9.0, ric13Mwh: 5.00, tipConsumo: 8   },
+    { id: "sad_499",   label: "SUPER ADAGIO 30–499 MWh",    base:  30, volMwh: 1.0, ric1Mwh: 1.3, ric13Pod: 2.0, ric13Mwh: 1.90, tipConsumo: 70  },
+    { id: "ada_499",   label: "ADAGIO 30–499 MWh",          base:  30, volMwh: 1.3, ric1Mwh: 1.5, ric13Pod: 2.0, ric13Mwh: 2.30, tipConsumo: 70  },
+    { id: "and_499",   label: "ANDANTE 30–499 MWh",         base:  40, volMwh: 2.3, ric1Mwh: 1.5, ric13Pod: 2.5, ric13Mwh: 2.80, tipConsumo: 40  },
+    { id: "all_499",   label: "ALLEGRO 30–499 MWh",         base:  50, volMwh: 2.5, ric1Mwh: 2.0, ric13Pod: 3.0, ric13Mwh: 3.30, tipConsumo: 40  },
+    { id: "viv_499",   label: "VIVACE 30–499 MWh",          base:  60, volMwh: 3.2, ric1Mwh: 2.5, ric13Pod: 3.5, ric13Mwh: 4.05, tipConsumo: 40  },
+    { id: "andp_499",  label: "ANDANTE PLUS 30–499 MWh",    base:  60, volMwh: 4.3, ric1Mwh: 2.0, ric13Pod: 4.0, ric13Mwh: 4.05, tipConsumo: 40  },
+    { id: "sad_500",   label: "SUPER ADAGIO >=500 MWh",     base:  30, volMwh: 0.6, ric1Mwh: 1.8, ric13Pod: 2.0, ric13Mwh: 2.40, tipConsumo: 500 },
+    { id: "ada_500",   label: "ADAGIO >=500 MWh",           base:  30, volMwh: 0.8, ric1Mwh: 2.0, ric13Pod: 2.0, ric13Mwh: 2.80, tipConsumo: 500 },
+    { id: "and_500",   label: "ANDANTE >=500 MWh",          base:  40, volMwh: 1.8, ric1Mwh: 2.0, ric13Pod: 2.5, ric13Mwh: 3.30, tipConsumo: 500 },
+];
+
+// Gas BIZ volumetrico (€/smc)
+const DUFERCO_BIZ_GAS = [
+    { id: "g_sad_9",  label: "SUPER ADAGIO 0 < 9.999 smc",    base:  70, volSmc: 0.0035, ric1Smc: 0.009,  ric13Pod: 4.80, ric13Smc: 0.0118, tipConsumo: 3000,  flat: false },
+    { id: "g_ada_9",  label: "ADAGIO 0 < 9.999 smc",          base:  75, volSmc: 0.0050, ric1Smc: 0.010,  ric13Pod: 5.50, ric13Smc: 0.0125, tipConsumo: 3000,  flat: false },
+    { id: "g_and_9",  label: "ANDANTE 0 < 9.999 smc",         base:  85, volSmc: 0.0100, ric1Smc: 0.010,  ric13Pod: 6.00, ric13Smc: 0.0150, tipConsumo: 3000,  flat: false },
+    { id: "g_all_9",  label: "ALLEGRO 0 < 9.999 smc",         base:  95, volSmc: 0.0100, ric1Smc: 0.015,  ric13Pod: 6.50, ric13Smc: 0.0200, tipConsumo: 3000,  flat: false },
+    { id: "g_viv_9",  label: "VIVACE 0 < 9.999 smc",          base: 105, volSmc: 0.0100, ric1Smc: 0.020,  ric13Pod: 7.00, ric13Smc: 0.0250, tipConsumo: 3000,  flat: false },
+    { id: "g_allp_9", label: "ALLEGRO PLUS 0 < 9.999 smc",    base: 125, volSmc: 0.0150, ric1Smc: 0.025,  ric13Pod: 8.00, ric13Smc: 0.0325, tipConsumo: 3000,  flat: false },
+    { id: "g_vivp_9", label: "VIVACE PLUS 0 < 9.999 smc",     base: 135, volSmc: 0.0150, ric1Smc: 0.030,  ric13Pod: 8.50, ric13Smc: 0.0375, tipConsumo: 3000,  flat: false },
+    { id: "g_sad_99", label: "SUPER ADAGIO 10.000-99.999 smc",base:  30, volSmc: 0.0092, ric1Smc: 0.0105, ric13Pod: 2.00, ric13Smc: 0.0135, tipConsumo: 11000, flat: false },
+    { id: "g_ada_99", label: "ADAGIO 10.000-99.999 smc",      base:  30, volSmc: 0.0140, ric1Smc: 0.0120, ric13Pod: 2.00, ric13Smc: 0.0175, tipConsumo: 11000, flat: false },
+    { id: "g_and_99", label: "ANDANTE 10.000-99.999 smc",     base:  40, volSmc: 0.0230, ric1Smc: 0.0120, ric13Pod: 2.50, ric13Smc: 0.0200, tipConsumo: 11000, flat: false },
+    { id: "g_all_99", label: "ALLEGRO 10.000-99.999 smc",     base:  50, volSmc: 0.0290, ric1Smc: 0.0170, ric13Pod: 3.00, ric13Smc: 0.0250, tipConsumo: 11000, flat: false },
+    { id: "g_viv_99", label: "VIVACE 10.000-99.999 smc",      base:  60, volSmc: 0.0320, ric1Smc: 0.0220, ric13Pod: 3.50, ric13Smc: 0.0300, tipConsumo: 11000, flat: false },
+    { id: "g_allp_99",label: "ALLEGRO PLUS 10.000-99.999 smc",base:  70, volSmc: 0.0330, ric1Smc: 0.0270, ric13Pod: 4.50, ric13Smc: 0.0375, tipConsumo: 11000, flat: false },
+    { id: "g_vivp_99",label: "VIVACE PLUS 10.000-99.999 smc", base:  80, volSmc: 0.0350, ric1Smc: 0.0320, ric13Pod: 5.00, ric13Smc: 0.0425, tipConsumo: 11000, flat: false },
+    // Biz New Gas flat (€/PDR)
+    { id: "g_entry",  label: "Business Entry ≤5.000 Smc",     base:  75, volSmc: 0, ric1Pod: 5,  ric13Pod: 10.0, tipConsumo: 1668, flat: true },
+    { id: "g_esse",   label: "Business Esse ≤5.000 Smc",      base:  95, volSmc: 0, ric1Pod: 5,  ric13Pod: 11.5, tipConsumo: 1668, flat: true },
+    { id: "g_emme",   label: "Business Emme ≤5.000 Smc",      base: 130, volSmc: 0, ric1Pod: 5,  ric13Pod: 13.5, tipConsumo: 1668, flat: true },
+    { id: "g_elle",   label: "Business Elle ≤5.000 Smc",      base: 155, volSmc: 0, ric1Pod: 5,  ric13Pod: 15.5, tipConsumo: 1668, flat: true },
+    { id: "g_essep",  label: "Business Esse Plus ≤5.000 Smc", base: 155, volSmc: 0, ric1Pod: 0,  ric13Pod: 11.5, tipConsumo: 1668, flat: true },
+    { id: "g_emmep",  label: "Business Emme Plus ≤5.000 Smc", base: 190, volSmc: 0, ric1Pod: 0,  ric13Pod: 13.5, tipConsumo: 1668, flat: true },
+    { id: "g_ellep",  label: "Business Elle Plus ≤5.000 Smc", base: 215, volSmc: 0, ric1Pod: 0,  ric13Pod: 15.5, tipConsumo: 1668, flat: true },
+];
+
+// Biz New EE flat (€/POD)
+const DUFERCO_BIZ_EE_NEW = [
+    { id: "e_entry", label: "Business Entry ≤20.000 kWh",     base:  70, ric1Pod: 5,  ric13Pod: 10 },
+    { id: "e_esse",  label: "Business Esse ≤20.000 kWh",      base:  95, ric1Pod: 5,  ric13Pod: 11 },
+    { id: "e_emme",  label: "Business Emme ≤20.000 kWh",      base: 120, ric1Pod: 5,  ric13Pod: 13 },
+    { id: "e_elle",  label: "Business Elle ≤20.000 kWh",      base: 145, ric1Pod: 5,  ric13Pod: 15 },
+    { id: "e_essep", label: "Business Esse Plus ≤20.000 kWh", base: 155, ric1Pod: 0,  ric13Pod: 11 },
+    { id: "e_emmep", label: "Business Emme Plus ≤20.000 kWh", base: 180, ric1Pod: 0,  ric13Pod: 13 },
+    { id: "e_ellep", label: "Business Elle Plus ≤20.000 kWh", base: 205, ric1Pod: 0,  ric13Pod: 15 },
+];
+
+function DufercoCalculator() {
+    const [mode, setMode] = useState("ee_vol"); // ee_vol | ee_flat | gas_vol | gas_flat
+    const [productId, setProductId] = useState("sad_499");
+    const [qty, setQty] = useState(1);
+    const [consumo, setConsumo] = useState(70);
+
+    const MODES = [
+        { id: "ee_vol",  label: "EE vol.",   list: DUFERCO_BIZ_EE,     unit: "MWh" },
+        { id: "ee_flat", label: "EE flat",   list: DUFERCO_BIZ_EE_NEW, unit: "POD" },
+        { id: "gas_vol", label: "Gas vol.",  list: DUFERCO_BIZ_GAS.filter(p => !p.flat), unit: "smc" },
+        { id: "gas_flat",label: "Gas flat",  list: DUFERCO_BIZ_GAS.filter(p => p.flat),  unit: "PDR" },
+    ];
+
+    const currentMode = MODES.find(m => m.id === mode);
+    const list = currentMode.list;
+
+    function handleMode(id) {
+        setMode(id);
+        const newList = MODES.find(m => m.id === id).list;
+        const first = newList[0];
+        setProductId(first.id);
+        setConsumo(first.tipConsumo ?? 1);
+    }
+
+    function handleProduct(id) {
+        setProductId(id);
+        const p = list.find(x => x.id === id);
+        if (p) setConsumo(p.tipConsumo ?? consumo);
+    }
+
+    const prod = list.find(p => p.id === productId) || list[0];
+    const c = Number(consumo) || 0;
+    const isFlat = mode === "ee_flat" || mode === "gas_flat";
+
+    // Volumetrico
+    const volComp  = isFlat ? 0 : (mode === "ee_vol" ? prod.volMwh * c : prod.volSmc * c);
+    const upFront  = prod.base + volComp;
+    const ric1     = isFlat
+        ? (prod.ric1Pod ?? 0) * 12
+        : (mode === "ee_vol" ? prod.ric1Mwh * c : prod.ric1Smc * c);
+    const prov1Anno = upFront + ric1;
+    const prov2Anno = isFlat
+        ? prod.ric13Pod * 12
+        : (mode === "ee_vol"
+            ? prod.ric13Pod * 12 + prod.ric13Mwh * c
+            : prod.ric13Pod * 12 + prod.ric13Smc * c);
+
+    const volLabel = mode === "ee_vol"
+        ? `Volumetrico (€${prod.volMwh}/MWh × ${c} MWh)`
+        : `Volumetrico (€${prod.volSmc}/smc × ${c} smc)`;
+    const ric1Label = mode === "ee_vol"
+        ? `Ric. 1°anno (€${prod.ric1Mwh}/MWh × ${c} MWh)`
+        : mode === "gas_vol"
+            ? `Ric. 1°anno (€${prod.ric1Smc}/smc × ${c} smc)`
+            : `Ric. 1°anno (€${prod.ric1Pod ?? 0}/mese × 12)`;
+    const ric13volLabel = mode === "ee_vol"
+        ? `Ric. vol. (€${prod.ric13Mwh}/MWh × ${c} MWh)`
+        : `Ric. vol. (€${prod.ric13Smc}/smc × ${c} smc)`;
+
+    const podLabel = currentMode.unit;
+
+    return (
+        <div>
+            {/* Mode switcher */}
+            <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
+                {MODES.map(m => (
+                    <button key={m.id} onClick={() => handleMode(m.id)} style={{
+                        flex: 1, padding: "6px 0", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 11, fontWeight: 700,
+                        background: mode === m.id ? "#FF7043" : "#222", color: mode === m.id ? "#fff" : "#888",
+                    }}>{m.label}</button>
+                ))}
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+                <label style={labelStyle}>Prodotto</label>
+                <select value={prod.id} onChange={e => handleProduct(e.target.value)} style={selectStyle}>
+                    {list.map(p => <option key={p.id} value={p.id}>{p.label} — {fmt(p.base)}</option>)}
+                </select>
+            </div>
+            <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+                {!isFlat && (
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Consumo ({podLabel}/anno)</label>
+                        <input type="number" min={0} step={1} value={consumo}
+                            onChange={e => setConsumo(e.target.value)} style={inputStyle} />
+                    </div>
+                )}
+                <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>N° contratti ({podLabel})</label>
+                    <input type="number" min={1} value={qty}
+                        onChange={e => setQty(Math.max(1, +e.target.value || 1))} style={inputStyle} />
+                </div>
+            </div>
+
+            <hr style={hrStyle} />
+            <div style={{ fontSize: 11, color: "#FF7043", fontWeight: 700, marginBottom: 6, textTransform: "uppercase" }}>Acquisizione / Up Front</div>
+            <ResultRow label="Gettone Base" value={fmt(prod.base)} />
+            {!isFlat && <ResultRow label={volLabel} value={fmt(volComp)} color="#2196F3" />}
+            <hr style={hrStyle} />
+            <ResultRow label={`Up Front / ${podLabel}`} value={fmt(upFront)} bold />
+            {qty > 1 && <ResultRow label={`Up Front × ${qty} ${podLabel}`} value={fmt(upFront * qty)} bold />}
+
+            <hr style={hrStyle} />
+            <div style={{ fontSize: 11, color: "#4CAF50", fontWeight: 700, marginBottom: 6, textTransform: "uppercase" }}>1° Anno (mesi 1–12)</div>
+            <ResultRow label="Up Front" value={fmt(upFront)} />
+            {ric1 > 0 && <ResultRow label={ric1Label} value={fmt(ric1)} color="#4CAF50" />}
+            <hr style={hrStyle} />
+            <ResultRow label={`TOTALE 1° ANNO / ${podLabel}`} value={fmt(prov1Anno)} color="#4CAF50" bold />
+            {qty > 1 && <ResultRow label={`TOTALE ${qty} ${podLabel}`} value={fmt(prov1Anno * qty)} color="#4CAF50" bold />}
+
+            <hr style={hrStyle} />
+            <div style={{ fontSize: 11, color: "#FF9800", fontWeight: 700, marginBottom: 6, textTransform: "uppercase" }}>Dal 13° Mese (annuo / {podLabel})</div>
+            <ResultRow label={`Ric. POD (€${prod.ric13Pod}/mese × 12)`} value={fmt(prod.ric13Pod * 12)} color="#FF9800" />
+            {!isFlat && <ResultRow label={ric13volLabel} value={fmt(mode === "ee_vol" ? prod.ric13Mwh * c : prod.ric13Smc * c)} color="#FF9800" />}
+            <hr style={hrStyle} />
+            <ResultRow label={`TOTALE DAL 13° / ${podLabel}`} value={fmt(prov2Anno)} color="#FF9800" bold />
+            {qty > 1 && <ResultRow label={`TOTALE ${qty} ${podLabel}`} value={fmt(prov2Anno * qty)} color="#FF9800" bold />}
+        </div>
+    );
+}
+
 const TABS = [
-    { id: "sm", label: "SuperMoney", color: "#78909C" },
-    { id: "agn", label: "AGN Energia", color: "#CE93D8" },
-    { id: "magis", label: "Magis Energia", color: "#4DB6AC" },
+    { id: "sm",      label: "SuperMoney",    color: "#78909C" },
+    { id: "agn",     label: "AGN Energia",   color: "#CE93D8" },
+    { id: "magis",   label: "Magis Energia", color: "#4DB6AC" },
+    { id: "duferco", label: "Duferco En.", color: "#FF7043" },
 ];
 
 export default function Calculator({ isOpen, onToggle }) {
@@ -270,7 +451,7 @@ export default function Calculator({ isOpen, onToggle }) {
             <button
                 onClick={onToggle}
                 style={{
-                    position: "fixed", right: isOpen ? 380 : 0, top: "50%", transform: "translateY(-50%)",
+                    position: "fixed", right: isOpen ? 480 : 0, top: "50%", transform: "translateY(-50%)",
                     zIndex: 20, background: "#D6006E", color: "#fff", border: "none",
                     borderRadius: "8px 0 0 8px", padding: "14px 8px", cursor: "pointer",
                     fontSize: 13, fontWeight: 700, writingMode: "vertical-rl", textOrientation: "mixed",
@@ -282,7 +463,7 @@ export default function Calculator({ isOpen, onToggle }) {
 
             {/* Sidebar */}
             <div style={{
-                position: "fixed", right: isOpen ? 0 : -380, top: 0, bottom: 0, width: 380,
+                position: "fixed", right: isOpen ? 0 : -480, top: 0, bottom: 0, width: 480,
                 background: "linear-gradient(180deg, #111 0%, #0D0D0D 100%)",
                 borderLeft: "2px solid #D6006E", zIndex: 15,
                 transition: "right 0.3s ease", overflowY: "auto",
@@ -320,6 +501,7 @@ export default function Calculator({ isOpen, onToggle }) {
                     {tab === "sm" && <SMCalculator />}
                     {tab === "agn" && <AGNCalculator />}
                     {tab === "magis" && <MagisCalculator />}
+                    {tab === "duferco" && <DufercoCalculator />}
                 </div>
             </div>
         </>

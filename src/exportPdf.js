@@ -8,6 +8,8 @@ const YELLOW    = [245, 196, 0];
 const PINK      = [233, 30, 140];
 const GRAY      = [85, 85, 85];
 const LIGHTGRAY = [248, 248, 248];
+const ROW_YELLOW = [255, 251, 220];
+const ROW_PINK   = [255, 232, 245];
 const LINEGRAY  = [220, 220, 220];
 const WHITE     = [255, 255, 255];
 const BLACK     = [30, 30, 30];
@@ -36,11 +38,18 @@ async function loadLogo() {
     try {
         const resp = await fetch('/logo-semplicom.png');
         const blob = await resp.blob();
-        return await new Promise(res => {
+        const dataUrl = await new Promise(res => {
             const reader = new FileReader();
             reader.onload = () => res(reader.result);
             reader.readAsDataURL(blob);
         });
+        // Ottieni dimensioni reali per mantenere proporzioni
+        const { w, h } = await new Promise(res => {
+            const img = new Image();
+            img.onload = () => res({ w: img.naturalWidth, h: img.naturalHeight });
+            img.src = dataUrl;
+        });
+        return { dataUrl, ratio: w / h };
     } catch (_) { return null; }
 }
 
@@ -53,9 +62,11 @@ function drawPageHeader(doc, logoDataUrl, planName, gestoreName, pageW) {
     doc.setFillColor(...YELLOW);
     doc.rect(0, 0, 4, 38, 'F');
 
-    // Logo
+    // Logo con proporzioni corrette (altezza fissa 18mm)
     if (logoDataUrl) {
-        doc.addImage(logoDataUrl, 'PNG', 10, 6, 44, 14);
+        const logoH = 18;
+        const logoW = logoH * logoDataUrl.ratio;
+        doc.addImage(logoDataUrl.dataUrl, 'PNG', 10, 10, logoW, logoH);
     }
 
     // Piano name (piccolo, sopra)
@@ -99,6 +110,62 @@ function drawPageFooter(doc, pageNum, totalPages, pageW, pageH) {
     doc.circle(pageW / 2, pageH - 5.5, 0.8, 'F');
 }
 
+function getStornoText(gestoreName, info) {
+    const name = gestoreName.toLowerCase();
+    const { cat, fornitore } = info || {};
+
+    // Telefonia: 12 mesi (Fastweb e Sky: 6 mesi)
+    if (cat === 'TELECOM') {
+        if (name.includes('fastweb') || name.includes('sky')) return '6 mesi';
+        return '12 mesi';
+    }
+    // Iren diretto (non comparatore): 6 mesi (3 al 100% + 3 al 50%)
+    if (name.includes('iren') && !name.includes('comparatore')) {
+        return '6 mesi (3 mesi al 100% + 3 mesi al 50%)';
+    }
+    // Magis: 6 mesi
+    if (name.includes('magis')) return '6 mesi';
+    // SuperMoney: 3 mesi
+    if (fornitore === 'SuperMoney') return '3 mesi';
+    // Default: 4 mesi
+    return '4 mesi';
+}
+
+function drawRulesBox(doc, y, pageW, stornoText) {
+    const boxX = 10;
+    const boxW = pageW - 20;
+    const boxH = 22;
+    if (y + boxH > doc.internal.pageSize.getHeight() - 14) return; // non c'è spazio
+
+    // Sfondo box
+    doc.setFillColor(255, 248, 230);
+    doc.roundedRect(boxX, y, boxW, boxH, 2, 2, 'F');
+    doc.setDrawColor(...YELLOW);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(boxX, y, boxW, boxH, 2, 2, 'S');
+
+    // Titolo
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...GRAY);
+    doc.text('REGOLE CONTRATTUALI', boxX + 4, y + 5.5);
+
+    // Storno
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(30, 30, 30);
+    doc.text('Storno:', boxX + 4, y + 11.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(stornoText, boxX + 22, y + 11.5);
+
+    // Penale
+    doc.setFont('helvetica', 'bold');
+    doc.text('Penale contratto falso / intestatario deceduto:', boxX + 4, y + 18);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...PINK);
+    doc.text('€ 500 – € 10.000', boxX + 95, y + 18);
+}
+
 export async function exportPianoPdf(data, planName) {
     const plan = PLANS.find(p => p.name === planName);
     if (!plan) return;
@@ -110,11 +177,16 @@ export async function exportPianoPdf(data, planName) {
     const today = new Date().toISOString().slice(0, 10);
 
     // ── Prepara righe per gestore ──
-    const byGestore = new Map();
+    const byGestore  = new Map();
+    const gestoreInfo = new Map(); // gestoreName -> { fornitore, cat, provider }
 
     data.forEach(row => {
         const id = row.gestoreId ?? GESTORE_IDS[row.fornitore] ?? GESTORE_IDS[row.provider] ?? '';
         const gestore = row.gestoreNome ?? (id && GESTORE_NOME_SISTEMA[id]) ?? row.provider ?? '';
+
+        if (!gestoreInfo.has(gestore)) {
+            gestoreInfo.set(gestore, { fornitore: row.fornitore, cat: row.cat, provider: row.provider });
+        }
 
         // Noleggio Tech: espandi per periodo
         const periodi = (row.fornitore === 'Noleggio Tech' && row.cat === 'DEVICE')
@@ -157,7 +229,7 @@ export async function exportPianoPdf(data, planName) {
 
         autoTable(doc, {
             startY: 40,
-            margin: { left: 10, right: 10, bottom: 16 },
+            margin: { top: 40, left: 10, right: 10, bottom: 16 },
             head: [['Prodotto', 'Segmento', 'Tipo', 'Base (€)', 'RID (€)', 'Massimo (€)']],
             body: rows.map(r => [
                 r.prodotto,
@@ -175,7 +247,7 @@ export async function exportPianoPdf(data, planName) {
                 cellPadding: 4,
             },
             columnStyles: {
-                0: { cellWidth: 'auto' },
+                0: { cellWidth: 'auto', fontStyle: 'bold' },
                 1: { cellWidth: 28, halign: 'center' },
                 2: { cellWidth: 36, halign: 'center' },
                 3: { cellWidth: 28, halign: 'right', fontStyle: 'bold', textColor: [0, 130, 60] },
@@ -183,7 +255,7 @@ export async function exportPianoPdf(data, planName) {
                 5: { cellWidth: 30, halign: 'right', fontStyle: 'bold', textColor: BLACK },
             },
             alternateRowStyles: { fillColor: LIGHTGRAY },
-            bodyStyles: { fontSize: 8.5, cellPadding: 3.5, textColor: BLACK },
+            bodyStyles: { fontSize: 8.5, cellPadding: 3.5, textColor: BLACK, fillColor: WHITE },
             didParseCell: (hookData) => {
                 // Accento giallo sul bordo sinistro prima colonna header
                 if (hookData.section === 'head' && hookData.column.index === 0) {
@@ -191,13 +263,22 @@ export async function exportPianoPdf(data, planName) {
                     hookData.cell.styles.textColor = GRAY;
                 }
             },
-            didDrawPage: () => {
+            didDrawPage: (hookData) => {
                 const pn = doc.internal.getCurrentPageInfo().pageNumber;
                 const tot = doc.internal.getNumberOfPages();
+                // Header su ogni pagina (anche continuazione tabella)
+                if (hookData.pageNumber > 1) {
+                    drawPageHeader(doc, logoDataUrl, planName, gestoreName, pageW);
+                }
                 drawPageFooter(doc, pn, tot, pageW, pageH);
             },
             showHead: 'everyPage',
         });
+
+        // Box regole sotto la tabella
+        const finalY = doc.lastAutoTable.finalY + 4;
+        const info = gestoreInfo.get(gestoreName);
+        drawRulesBox(doc, finalY, pageW, getStornoText(gestoreName, info));
     });
 
     // Fix footer su tutte le pagine

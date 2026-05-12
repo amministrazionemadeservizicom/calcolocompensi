@@ -52,6 +52,14 @@ const rnd5  = (v) => Math.round(v / 5)  * 5;
 
 export function getCompForPlan(row, planName, planRatio) {
     // Piani con formula fissa: ignorano sempre compOverride
+    // ALMAVIRIA = gettone -15% (formula fissa, ignora compOverride)
+    if (planName === 'ALMAVIRIA') {
+        return {
+            base: Math.round((row.gettone || 0) * 0.85),
+            rid:  Math.round((row.rid || 0) * 0.85),
+        };
+    }
+
     // PIANO EKO = identico a 10 CONS (formula fissa, ignora compOverride)
     if (planName === 'PIANO EKO') {
         return getCompForPlan(row, '10 CONS', PLANS.find(p => p.name === '10 CONS').ratio);
